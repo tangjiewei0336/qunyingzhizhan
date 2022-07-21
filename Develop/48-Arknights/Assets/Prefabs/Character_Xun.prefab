@@ -1384,7 +1384,7 @@ MonoBehaviour:
   myAudioSource_Attack: {fileID: 8624357066753757399}
   myTileType: 1
   myStatus_MaxHealth: 780
-  myStatus_Attack: 269
+  myStatus_Attack: 400
   myStatus_AttackTime: 1
   DeployCost: 14
   CodeName: "\u5DE1\u6797\u8005"

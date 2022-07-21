@@ -5,6 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class CS_Title : MonoBehaviour {
     public void OnButtonStart () {
-        SceneManager.LoadScene ("Game");
+        SceneManager.LoadScene ("ArmySelection");
     }
 }

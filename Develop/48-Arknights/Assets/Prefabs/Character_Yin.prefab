@@ -319,7 +319,7 @@ MonoBehaviour:
   myAudioSource_Attack: {fileID: 5162120291494773141}
   myTileType: 0
   myStatus_MaxHealth: 2560
-  myStatus_Attack: 713
+  myStatus_Attack: 800
   myStatus_AttackTime: 1.3
   DeployCost: 20
   CodeName: "\u94F6\u7070"

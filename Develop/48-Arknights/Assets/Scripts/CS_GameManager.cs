@@ -40,12 +40,14 @@ public class CS_GameManager : MonoBehaviour {
         int currentSerial = 0;
         foreach(FriendData TempFriendData in FriendAssembly)
         {
+            int TempDeployCost = 0;
             // init all players
             foreach (GameObject f_prefab in myPlayerPrefabs)
             {
                 if (f_prefab.GetComponent<CS_Player>().CodeName == TempFriendData.Name)
                 {
                     GameObject f_object = Instantiate(f_prefab, this.transform);
+                    TempDeployCost = f_object.GetComponent<CS_Player>().GetDeployCost();
                     f_object.SetActive(false);
                     // get player script
                     CS_Player f_player = f_object.GetComponent<CS_Player>();
@@ -62,6 +64,7 @@ public class CS_GameManager : MonoBehaviour {
                     f_object.transform.SetParent(GameObject.Find("GameCanvas").transform);
                     f_object.SetActive(true);
                     RectTransform TempPositionInfo = f_object.GetComponent<RectTransform>();
+                    TempPositionInfo.gameObject.GetComponent<CS_PlayerButton>().DeployCost = TempDeployCost;
                     TempPositionInfo.localScale = new Vector3(1, 1, 1);
                     TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, 300 * currentSerial, 300);
                     TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, 300);
@@ -92,6 +95,20 @@ public class CS_GameManager : MonoBehaviour {
 
     void Update()
     {
+        for (int i = 0; i < GameObject.Find("GameCanvas").transform.childCount; i++) {
+           if (GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>() != null)
+            {
+                if (GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().DeployCost <= CostBalance)
+                {
+                    GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().Filters.gameObject.SetActive(false);
+                }
+                else
+                {
+                    GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().Filters.gameObject.SetActive(true);
+                }
+            }
+                      
+        }
         if (BeginGainCost && (CostGainInterval != 0f) && (CostBalance < MaximumCost))
         {
             TimePast += Time.deltaTime;
@@ -123,13 +140,19 @@ public class CS_GameManager : MonoBehaviour {
         }
     }
 
-    public void SetMyCurrentPlayer (int g_index) {
+    public void SetMyCurrentPlayer (string CodeName) {
         // dont do anything if its setting direction
         if (myDirectionObject.activeSelf == true) {
             return;
         }
 
-        myCurrentPlayer = myPlayerList[g_index];
+        foreach (CS_Player player in myPlayerList)
+        {
+            if (player.CodeName == CodeName)
+            {
+                myCurrentPlayer = player;
+            }
+        }
     }
 
     public void BeginDragPlayer () {

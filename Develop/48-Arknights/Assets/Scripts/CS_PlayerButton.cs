@@ -10,7 +10,9 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public Text DeployCostDisplayComp;
     public string CodeName;
+    public int DeployCost;
     public Canvas Parent;
+    public Image Filters;
     public void setCost(int cost)
     {
         DeployCostDisplayComp.text = cost.ToString();
@@ -30,7 +32,7 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
     }
 
     public void OnPointerDown (PointerEventData eventData) {
-        CS_GameManager.Instance.SetMyCurrentPlayer (myIndex);
+        CS_GameManager.Instance.SetMyCurrentPlayer (CodeName);
         Debug.Log("OnPointerDown");
     }
 
