@@ -73,6 +73,13 @@ public class CS_UIManager : MonoBehaviour {
 
     public void ShowPageEnd () {
         myPage_End.SetActive (true);
+        Invoke("Summarize", 1.67f);
+    }
+
+    public void Summarize()
+    {
+        SceneManager.LoadScene("Title");
+
     }
 
     public void ShowPageFail () {
