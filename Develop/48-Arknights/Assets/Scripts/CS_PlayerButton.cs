@@ -30,6 +30,7 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerDown (PointerEventData eventData) {
         CS_GameManager.Instance.SetMyCurrentPlayer (myIndex);
+        Debug.Log("OnPointerDown");
     }
 
 }

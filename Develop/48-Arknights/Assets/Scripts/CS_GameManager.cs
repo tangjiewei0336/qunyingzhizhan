@@ -59,17 +59,12 @@ public class CS_GameManager : MonoBehaviour {
                 if (f_prefab.GetComponent<CS_PlayerButton>().CodeName == TempFriendData.Name)
                 {
                     GameObject f_object = Instantiate(f_prefab, this.transform);
-                    f_object.transform.SetParent(f_prefab.GetComponent<CS_PlayerButton>().transform);
-                    RectTransform TempPositionInfo = f_prefab.GetComponent<RectTransform>();
-                    TempPositionInfo.localScale = new Vector3(0, 0, 0);
-                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, -300 * currentSerial, 0);
-                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, 0);
-                    f_object.SetActive(false);
-                    // get player script
-                    CS_Player f_player = f_object.GetComponent<CS_Player>();
-                    // add script to list
-                    myPlayerList.Add(f_player);
-
+                    f_object.transform.SetParent(GameObject.Find("GameCanvas").transform);
+                    f_object.SetActive(true);
+                    RectTransform TempPositionInfo = f_object.GetComponent<RectTransform>();
+                    TempPositionInfo.localScale = new Vector3(1, 1, 1);
+                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, 300 * currentSerial, 300);
+                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, 300);
                 }
             }
             currentSerial += 1;
