@@ -135,10 +135,13 @@ public class CS_GameManager : MonoBehaviour {
     public void BeginDragPlayer () {
         // dont do anything if its setting direction
         if (myDirectionObject.activeSelf == true) {
+            Debug.Log("myDirectionObject.activeSelf = true");
             return;
         }
+        Debug.Log("CostBalance: " + CostBalance);
+        Debug.Log("myCurrentPlayer.GetDeployCost: " + myCurrentPlayer.GetDeployCost());
 
-        if (myCurrentPlayer.GetDeployCost() >= CostBalance)
+        if (myCurrentPlayer.GetDeployCost() <= CostBalance)
         {
             myCurrentPlayer.gameObject.SetActive(true);
             myCurrentPlayer.Arrange();

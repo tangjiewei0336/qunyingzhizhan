@@ -18,6 +18,7 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnBeginDrag (PointerEventData eventData) {
         CS_GameManager.Instance.BeginDragPlayer ();
+        Debug.Log("OnBeginDrag");
     }
 
     public void OnDrag (PointerEventData eventData) {

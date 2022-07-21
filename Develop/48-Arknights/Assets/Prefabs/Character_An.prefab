@@ -1535,7 +1535,7 @@ MonoBehaviour:
   myStatus_MaxHealth: 1135
   myStatus_Attack: 362
   myStatus_AttackTime: 2.85
-  DeployCost: 24
+  DeployCost: 15
   CodeName: "\u5B89\u585E\u5C14"
 --- !u!82 &2057483624484478368
 AudioSource:
