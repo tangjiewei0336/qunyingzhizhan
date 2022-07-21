@@ -88,6 +88,7 @@ public class CS_EnemyManager : MonoBehaviour {
 
         if (myEnemyCount == myEnemySpawnTimeArray.Length) {
             CS_UIManager.Instance.ShowPageEnd ();
+            CS_GameManager.Instance.StopGettingCost();
         }
 
         // remove enemy from list

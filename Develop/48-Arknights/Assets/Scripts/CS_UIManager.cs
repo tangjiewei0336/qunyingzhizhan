@@ -14,8 +14,12 @@ public class CS_UIManager : MonoBehaviour {
     [SerializeField] Text myText_Count;
     [SerializeField] Text myText_CostBalance;
 
+    [SerializeField] Image myImage_CostProgressBar;
+
     [SerializeField] GameObject myPage_End;
     [SerializeField] GameObject myPage_Fail;
+
+    [SerializeField] Button[] BackupPlayer;
 
     private void Awake () {
         if (instance != null && instance != this) {
@@ -36,6 +40,16 @@ public class CS_UIManager : MonoBehaviour {
 
     public void SetCount (int g_current, int g_total) {
         myText_Count.text = g_current.ToString("0") + "/" + g_total.ToString ("0");
+    }
+
+    /// <summary>
+    /// 设置获取费用进度条
+    /// </summary>
+    /// <param name="Percentage"></param>
+    public void SetProgressbarValue(float Percentage)
+    {
+        myImage_CostProgressBar.rectTransform.sizeDelta = new Vector2(500f * Percentage, 18);
+        myImage_CostProgressBar.rectTransform.anchoredPosition = new Vector3( - 500f + 250f * Percentage, 307, 0);
     }
 
     public void SetCost(int cost)
