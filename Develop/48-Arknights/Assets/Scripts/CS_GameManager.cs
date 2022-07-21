@@ -42,6 +42,32 @@ public class CS_GameManager : MonoBehaviour {
 
         // init direction object
         myDirectionObject.SetActive (false);
+        CostBalance = InitialCostBalance;
+        BeginGainCost = true;
+    }
+
+    bool BeginGainCost;
+    float TimePast;
+    [Tooltip("指定每多少秒获得一点部署费用，设定为0则不自动获得费用。")]
+    public float CostGainInterval = 3;
+    [Tooltip("指定关卡开始时的部署费用")]
+    public int InitialCostBalance = 9;
+    public int CostBalance = 0;
+
+
+    void Update()
+    {
+        if (BeginGainCost && (CostGainInterval != 0f))
+        {
+            TimePast += Time.deltaTime;
+            if (TimePast > CostGainInterval)
+            {
+                TimePast = 0;
+                CostBalance += 1;
+                            }
+
+        }
+        CS_UIManager.Instance.SetCost(CostBalance);
     }
 
     public void SetMyCurrentPlayer (int g_index) {

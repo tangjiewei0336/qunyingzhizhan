@@ -12,6 +12,7 @@ public class CS_UIManager : MonoBehaviour {
 
     [SerializeField] Text myText_Life;
     [SerializeField] Text myText_Count;
+    [SerializeField] Text myText_CostBalance;
 
     [SerializeField] GameObject myPage_End;
     [SerializeField] GameObject myPage_Fail;
@@ -35,6 +36,11 @@ public class CS_UIManager : MonoBehaviour {
 
     public void SetCount (int g_current, int g_total) {
         myText_Count.text = g_current.ToString("0") + "/" + g_total.ToString ("0");
+    }
+
+    public void SetCost(int cost)
+    {
+        myText_CostBalance.text = cost.ToString();
     }
 
     //public void OnButtonPlayer (int g_index) {
