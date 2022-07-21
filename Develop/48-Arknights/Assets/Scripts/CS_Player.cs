@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CS_Player : MonoBehaviour {
+
+
+
+
+
     public enum State {
         Idle = 0,
         Attack = 1,
@@ -31,6 +36,13 @@ public class CS_Player : MonoBehaviour {
     [SerializeField] protected int myStatus_Attack = 700;
     [SerializeField] protected float myStatus_AttackTime = 0.5f;
     protected float myAttackTimer = 0;
+    [SerializeField] int DeployCost = 24;
+    public string CodeName = "";
+
+    public int GetDeployCost()
+    {
+        return DeployCost;
+    }
 
     public void Arrange () {
         myState = State.Arrange;

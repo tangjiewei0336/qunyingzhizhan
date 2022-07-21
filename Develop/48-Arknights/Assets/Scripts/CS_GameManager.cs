@@ -11,6 +11,9 @@ public class CS_GameManager : MonoBehaviour {
     private int myCurrentLife;
 
     [SerializeField] GameObject[] myPlayerPrefabs = null;
+
+    [SerializeField] GameObject[] myButtonPrefabs = null;
+
     private List<CS_Player> myPlayerList = new List<CS_Player> ();
 
     [SerializeField] GameObject myDirectionObject = null;
@@ -25,20 +28,53 @@ public class CS_GameManager : MonoBehaviour {
         }
     }
 
+    List<FriendData> FriendAssembly;
+
     private void Start () {
         // init total lives
         myCurrentLife = myMaxLife;
         CS_UIManager.Instance.SetLife (myCurrentLife);
 
-        // init all players
-        foreach (GameObject f_prefab in myPlayerPrefabs) {
-            GameObject f_object = Instantiate (f_prefab, this.transform);
-            f_object.SetActive (false);
-            // get player script
-            CS_Player f_player = f_object.GetComponent<CS_Player> ();
-            // add script to list
-            myPlayerList.Add (f_player);
+        FriendAssembly =  GameObject.Find("DataStructure").GetComponent<DataStructure>().TransportMessage.StandbyArmour;
+        Debug.Log(FriendAssembly);
+        int currentSerial = 0;
+        foreach(FriendData TempFriendData in FriendAssembly)
+        {
+            // init all players
+            foreach (GameObject f_prefab in myPlayerPrefabs)
+            {
+                if (f_prefab.GetComponent<CS_Player>().CodeName == TempFriendData.Name)
+                {
+                    GameObject f_object = Instantiate(f_prefab, this.transform);
+                    f_object.SetActive(false);
+                    // get player script
+                    CS_Player f_player = f_object.GetComponent<CS_Player>();
+                    // add script to list
+                    myPlayerList.Add(f_player);
+
+                }
+            }
+            foreach (GameObject f_prefab in myButtonPrefabs)
+            {
+                if (f_prefab.GetComponent<CS_PlayerButton>().CodeName == TempFriendData.Name)
+                {
+                    GameObject f_object = Instantiate(f_prefab, this.transform);
+                    f_object.transform.SetParent(f_prefab.GetComponent<CS_PlayerButton>().transform);
+                    RectTransform TempPositionInfo = f_prefab.GetComponent<RectTransform>();
+                    TempPositionInfo.localScale = new Vector3(0, 0, 0);
+                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, -300 * currentSerial, 0);
+                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, 0);
+                    f_object.SetActive(false);
+                    // get player script
+                    CS_Player f_player = f_object.GetComponent<CS_Player>();
+                    // add script to list
+                    myPlayerList.Add(f_player);
+
+                }
+            }
+            currentSerial += 1;
         }
+        
 
         // init direction object
         myDirectionObject.SetActive (false);
@@ -74,6 +110,24 @@ public class CS_GameManager : MonoBehaviour {
         CS_UIManager.Instance.SetCost(CostBalance);
     }
 
+    /// <summary>
+    /// 扣除部署费用。
+    /// </summary>
+    /// <param name="expenditure">支出</param>
+    /// <returns>是否扣除成功</returns>
+    public bool reduceCost(int expenditure)
+    {
+        if (CostBalance >= expenditure)
+        {
+            CostBalance -= expenditure;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public void SetMyCurrentPlayer (int g_index) {
         // dont do anything if its setting direction
         if (myDirectionObject.activeSelf == true) {
@@ -89,12 +143,15 @@ public class CS_GameManager : MonoBehaviour {
             return;
         }
 
-        myCurrentPlayer.gameObject.SetActive (true);
-        myCurrentPlayer.Arrange ();
-        myCurrentPlayer.ShowHighlight ();
+        if (myCurrentPlayer.GetDeployCost() >= CostBalance)
+        {
+            myCurrentPlayer.gameObject.SetActive(true);
+            myCurrentPlayer.Arrange();
+            myCurrentPlayer.ShowHighlight();
 
-        // set slow mode
-        Time.timeScale = 0.1f;
+            // set slow mode
+            Time.timeScale = 0.1f;
+                    }
     }
 
     public void DragPlayer () {
@@ -197,6 +254,8 @@ public class CS_GameManager : MonoBehaviour {
                 myCurrentPlayer.HideHighlight ();
                 // hide direction 
                 myDirectionObject.SetActive (false);
+                // pay cost
+                reduceCost(myCurrentPlayer.GetDeployCost());
                 // init player
                 myCurrentPlayer.Init ();
                 myCurrentPlayer = null;
