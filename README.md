@@ -1,14 +1,9 @@
-# 48-Arknights
-48 hours develop challenge - Arknights
+# 群英之战2022
 
-本作品为48小时的游戏开发挑战中完成。
-本游戏为同人作品，除BGM之外均【白斗七星】制作，游戏本体和其中任何素材不得商用
+本作品为紫竹22届3班用爱发电开发的校园同人作品（基于Unity），使用与明日方舟相似的对战模式。
 
-欢迎关注在Bilibili和微博关注【白斗七星】，
-私信或留言告诉我你想看到的48小时开发挑战内容，我会在小本本上持续更新！
-非常感谢！
+本游戏美术素材由唐傑伟，姜海渝，宋欣悦，韩越，毛雨衡制作，不得商用。
+本游戏框架由瞿子桐，唐傑伟编写
+故事剧情由唐傑伟，余珈莹编写
 
-This project was made under 48 minutes during a game development challenge.
-This game is a fan project. Everything was made by Ruan Hang, except the background music. 
-This project and anything within this project can not be used for commercial reasons.
-
+特别鸣谢：up主白斗七星
