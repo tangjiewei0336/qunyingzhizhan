@@ -75,6 +75,7 @@ public class CS_GameManager : MonoBehaviour {
                     TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, 300);
                 }
             }
+            StageElements.Add(TempElementInfo);
             Debug.Log("FriendAssembly.Count:" + FriendAssembly.Count);
             currentSerial += 1;
         }
@@ -131,8 +132,10 @@ public class CS_GameManager : MonoBehaviour {
 
     public void SetDeadTimer(string CodeName,float RedeployTime)
     {
-        foreach(PersonalElementsCollection personalElement in StageElements)
+        Debug.Log("CS_GameManager : Death Signal Transmitted. Codename: " + CodeName);
+        foreach (PersonalElementsCollection personalElement in StageElements)
         {
+            Debug.Log("Comparing: " + personalElement.CodeName);
             if (personalElement.CodeName == CodeName)
             {
                 personalElement.SetDead(RedeployTime);

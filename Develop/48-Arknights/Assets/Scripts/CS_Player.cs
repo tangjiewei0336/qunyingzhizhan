@@ -173,6 +173,7 @@ public class CS_Player : MonoBehaviour {
         if (myCurrentHealth <= 0) {
             myCurrentHealth = 0;
             // set dead
+            Debug.Log("CS_Player : Death HP Threshold reached.");
             myState = State.Dead;
             CS_GameManager.Instance.SetDeadTimer(CodeName, PresettedReDeployTime);
             // hide enemy
