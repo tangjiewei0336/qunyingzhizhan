@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
@@ -14,7 +15,7 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
     public string CodeName;
     public int DeployCost;
     public Canvas Parent;
-    public Image Filters;
+    public UnityEngine.UI.Image Filters;
     public float RedeployTime {get
         {
             return redeploytime;
@@ -27,7 +28,8 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
                 Debug.Log("Death Redeploy CoolDown Triggered.");
                 Filters.color = new UnityEngine.Color(255 / 255f, 0, 0, 78 / 255f);
                 Filters.gameObject.SetActive(true);
-                textM.text = redeploytime.ToString("1f");
+                Timer.SetActive(true);
+                textM.text = redeploytime.ToString("f1");
             }
         }
     }
@@ -52,6 +54,7 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
         if (redeploytime > 0f)
         {
             redeploytime -= Time.deltaTime;
+            textM.text = redeploytime.ToString("f1");
         }
         else
         {
@@ -60,13 +63,13 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
             {
                 Filters.color = new Color(0, 0, 0, 78/255f);
                 Filters.gameObject.SetActive(true);
-                Timer.gameObject.SetActive(false);
+                Timer.SetActive(false);
             }
             else
             {
                 Filters.color = new Color(0, 0, 0, 78 / 255f);
                 Filters.gameObject.SetActive(false);
-                Timer.gameObject.SetActive(false);
+                Timer.SetActive(false);
 
             }
 
