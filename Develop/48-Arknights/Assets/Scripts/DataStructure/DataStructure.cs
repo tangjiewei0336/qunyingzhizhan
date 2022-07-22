@@ -31,4 +31,5 @@ public struct FriendData
 {
     public string Name;
     public int Level;
+    public SoldierType soldiertype;
 }

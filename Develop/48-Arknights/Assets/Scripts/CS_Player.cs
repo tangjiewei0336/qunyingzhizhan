@@ -11,6 +11,7 @@ public class CS_Player : MonoBehaviour {
     public enum State {
         Idle = 0,
         Attack = 1,
+        Standby = 7,
         Dead = 9,
         Arrange = 10,
     }
@@ -38,6 +39,13 @@ public class CS_Player : MonoBehaviour {
     protected float myAttackTimer = 0;
     [SerializeField] int DeployCost = 24;
     public string CodeName = "";
+    public float PresettedReDeployTime = 30f;
+    public const SoldierType soldiertype= SoldierType.Attacker;
+
+    public SoldierType GetSoldierType()
+    {
+        return soldiertype;
+    }
 
     public int GetDeployCost()
     {
@@ -65,7 +73,7 @@ public class CS_Player : MonoBehaviour {
     }
 
     private void FixedUpdate () {
-        Debug.Log (myState);
+        //Debug.Log (myState);
         if (myState == State.Arrange || myState == State.Dead) {
             return;
         }
@@ -76,6 +84,7 @@ public class CS_Player : MonoBehaviour {
         if (myState == State.Arrange) {
             FaceCamera ();
         }
+
     }
 
     private void FaceCamera () {
@@ -165,6 +174,7 @@ public class CS_Player : MonoBehaviour {
             myCurrentHealth = 0;
             // set dead
             myState = State.Dead;
+            CS_GameManager.Instance.SetDeadTimer(CodeName, PresettedReDeployTime);
             // hide enemy
             this.gameObject.SetActive (false);
         }

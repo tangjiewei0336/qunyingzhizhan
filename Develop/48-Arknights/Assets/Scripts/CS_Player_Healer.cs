@@ -7,6 +7,9 @@ public class CS_Player_Healer : CS_Player {
     [Header ("Healer")]
     private CS_Player myTargetPlayer;
 
+    public new const SoldierType soldiertype = SoldierType.Healer;
+
+
     protected override void Update_Attack () {
         // update attack timer
         if (myAttackTimer > 0) {

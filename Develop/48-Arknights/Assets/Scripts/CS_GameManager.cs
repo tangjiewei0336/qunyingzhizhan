@@ -29,6 +29,7 @@ public class CS_GameManager : MonoBehaviour {
     }
 
     List<FriendData> FriendAssembly;
+    List<PersonalElementsCollection> StageElements = new List<PersonalElementsCollection>();
 
     private void Start () {
         // init total lives
@@ -36,26 +37,29 @@ public class CS_GameManager : MonoBehaviour {
         CS_UIManager.Instance.SetLife (myCurrentLife);
 
         FriendAssembly =  GameObject.Find("DataStructure").GetComponent<DataStructure>().TransportMessage.StandbyArmour;
-        Debug.Log(FriendAssembly);
+        Debug.Log("Selected Friend Unit Detected:" + FriendAssembly.Count);
         int currentSerial = 0;
         foreach(FriendData TempFriendData in FriendAssembly)
         {
+            PersonalElementsCollection TempElementInfo = new PersonalElementsCollection();
             int TempDeployCost = 0;
             // init all players
+            Debug.Log("Call Player Init. Iteration:" + (currentSerial + 1).ToString());
             foreach (GameObject f_prefab in myPlayerPrefabs)
             {
                 if (f_prefab.GetComponent<CS_Player>().CodeName == TempFriendData.Name)
                 {
                     GameObject f_object = Instantiate(f_prefab, this.transform);
                     TempDeployCost = f_object.GetComponent<CS_Player>().GetDeployCost();
+                    TempElementInfo.Model = f_object;
                     f_object.SetActive(false);
                     // get player script
                     CS_Player f_player = f_object.GetComponent<CS_Player>();
                     // add script to list
                     myPlayerList.Add(f_player);
-
                 }
             }
+            Debug.Log("Call Button Init. Iteration:" + (currentSerial + 1).ToString());
             foreach (GameObject f_prefab in myButtonPrefabs)
             {
                 if (f_prefab.GetComponent<CS_PlayerButton>().CodeName == TempFriendData.Name)
@@ -63,6 +67,7 @@ public class CS_GameManager : MonoBehaviour {
                     GameObject f_object = Instantiate(f_prefab, this.transform);
                     f_object.transform.SetParent(GameObject.Find("GameCanvas").transform);
                     f_object.SetActive(true);
+                    TempElementInfo.Button = f_object;
                     RectTransform TempPositionInfo = f_object.GetComponent<RectTransform>();
                     TempPositionInfo.gameObject.GetComponent<CS_PlayerButton>().DeployCost = TempDeployCost;
                     TempPositionInfo.localScale = new Vector3(1, 1, 1);
@@ -70,6 +75,7 @@ public class CS_GameManager : MonoBehaviour {
                     TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, 300);
                 }
             }
+            Debug.Log("FriendAssembly.Count:" + FriendAssembly.Count);
             currentSerial += 1;
         }
         
@@ -78,6 +84,7 @@ public class CS_GameManager : MonoBehaviour {
         myDirectionObject.SetActive (false);
         CostBalance = InitialCostBalance;
         BeginGainCost = true;
+        Debug.Log("Game Start");
     }
 
     /// <summary>
@@ -96,15 +103,15 @@ public class CS_GameManager : MonoBehaviour {
     void Update()
     {
         for (int i = 0; i < GameObject.Find("GameCanvas").transform.childCount; i++) {
-           if (GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>() != null)
+           if (!(GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>() == null || !GameObject.Find("GameCanvas").transform.GetChild(i).gameObject.activeSelf))
             {
                 if (GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().DeployCost <= CostBalance)
                 {
-                    GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().Filters.gameObject.SetActive(false);
+                    GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().UpdateButton(false);
                 }
                 else
                 {
-                    GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().Filters.gameObject.SetActive(true);
+                    GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().UpdateButton(true);
                 }
             }
                       
@@ -120,6 +127,17 @@ public class CS_GameManager : MonoBehaviour {
             CS_UIManager.Instance.SetProgressbarValue(TimePast / CostGainInterval);
         }
         CS_UIManager.Instance.SetCost(CostBalance);
+    }
+
+    public void SetDeadTimer(string CodeName,float RedeployTime)
+    {
+        foreach(PersonalElementsCollection personalElement in StageElements)
+        {
+            if (personalElement.CodeName == CodeName)
+            {
+                personalElement.SetDead(RedeployTime);
+            }
+        }
     }
 
     /// <summary>
@@ -154,6 +172,8 @@ public class CS_GameManager : MonoBehaviour {
             }
         }
     }
+
+
 
     public void BeginDragPlayer () {
         // dont do anything if its setting direction
@@ -228,6 +248,7 @@ public class CS_GameManager : MonoBehaviour {
         // reset current player
         myCurrentPlayer.gameObject.SetActive (false);
         myCurrentPlayer = null;
+        Time.timeScale = 1f;
     }
 
     public void BeginDragDirection () {
@@ -312,4 +333,66 @@ public class CS_GameManager : MonoBehaviour {
     public List<CS_Player> GetPlayerList () {
         return myPlayerList;
     }
+}
+
+public class PersonalElementsCollection
+{
+    public SoldierType soldiertype;
+    public GameObject Model
+    {
+        get
+        {
+            return model;
+        }
+        set
+        {
+            model = value;
+            Debug.Log("Processing: " + model.name);
+            playerScript = model.GetComponent<CS_Player>();
+            soldiertype = playerScript.GetSoldierType();
+            codename = playerScript.CodeName;
+        }
+    }
+    public GameObject Button
+    {
+        get
+        {
+            return button;
+        }
+        set
+        {
+            if ((codename == "") || (value.GetComponent<CS_PlayerButton>().CodeName == codename))
+            {
+                button = value;
+                buttonScript = button.GetComponent<CS_PlayerButton>();
+            }
+            else
+            {
+                throw new System.Exception("按钮所指向的干员与模型不一致");
+            }
+        }
+    }
+    private GameObject button;
+    private GameObject model;
+    private CS_PlayerButton buttonScript;
+    private CS_Player playerScript;
+    private string codename;
+    private bool isDead;
+    private float CostMultiplier;
+
+    public void SetDead(float RedeployTime)
+    {
+        buttonScript.RedeployTime = RedeployTime;
+    }
+    
+
+    /// <summary>
+    /// 此项不能被设置，由模型信息决定。
+    /// </summary>
+    public string CodeName { get { return codename; } set { } }
+}
+public enum SoldierType
+{
+    Attacker = 1,
+        Healer = 2
 }
