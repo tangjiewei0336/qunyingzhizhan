@@ -323,6 +323,7 @@ MonoBehaviour:
   myStatus_AttackTime: 1.3
   DeployCost: 20
   CodeName: "\u94F6\u7070"
+  PresettedReDeployTime: 2
 --- !u!82 &5162120291494773141
 AudioSource:
   m_ObjectHideFlags: 0

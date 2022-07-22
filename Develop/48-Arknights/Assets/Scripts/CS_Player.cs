@@ -39,7 +39,7 @@ public class CS_Player : MonoBehaviour {
     protected float myAttackTimer = 0;
     [SerializeField] int DeployCost = 24;
     public string CodeName = "";
-    public float PresettedReDeployTime = 30f;
+    public float PresettedReDeployTime = 5f;
     public const SoldierType soldiertype= SoldierType.Attacker;
 
     public SoldierType GetSoldierType()

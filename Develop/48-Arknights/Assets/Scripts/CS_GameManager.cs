@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CS_GameManager : MonoBehaviour {
+    public GridLayout FlowLayout;
 
     private static CS_GameManager instance = null;
     public static CS_GameManager Instance { get { return instance; } }
@@ -14,11 +15,24 @@ public class CS_GameManager : MonoBehaviour {
 
     [SerializeField] GameObject[] myButtonPrefabs = null;
 
-    private List<CS_Player> myPlayerList = new List<CS_Player> ();
+    private List<CS_Player> myPlayerList = new List<CS_Player>();
 
     [SerializeField] GameObject myDirectionObject = null;
 
     private CS_Player myCurrentPlayer;
+
+
+    int SpeedMultiplier = 1;
+
+    public void SetSpeed(int speed)
+    {
+        Time.timeScale = speed;
+    }
+
+    public int getSpeed()
+    {
+        return SpeedMultiplier;
+    }
 
     private void Awake () {
         if (instance != null && instance != this) {
@@ -65,7 +79,7 @@ public class CS_GameManager : MonoBehaviour {
                 if (f_prefab.GetComponent<CS_PlayerButton>().CodeName == TempFriendData.Name)
                 {
                     GameObject f_object = Instantiate(f_prefab, this.transform);
-                    f_object.transform.SetParent(GameObject.Find("GameCanvas").transform);
+                    f_object.transform.SetParent(GameObject.Find("GameCanvas/FriendPanel").transform);
                     f_object.SetActive(true);
                     TempElementInfo.Button = f_object;
                     RectTransform TempPositionInfo = f_object.GetComponent<RectTransform>();
@@ -103,20 +117,25 @@ public class CS_GameManager : MonoBehaviour {
 
     void Update()
     {
-        for (int i = 0; i < GameObject.Find("GameCanvas").transform.childCount; i++) {
-           if (!(GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>() == null || !GameObject.Find("GameCanvas").transform.GetChild(i).gameObject.activeSelf))
-            {
-                if (GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().DeployCost <= CostBalance)
+        foreach (PersonalElementsCollection player in StageElements) { 
+                if (player.Button.GetComponent<CS_PlayerButton>().DeployCost <= CostBalance)
                 {
-                    GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().UpdateButton(false);
+                player.Button.GetComponent<CS_PlayerButton>().UpdateButton(false);
                 }
                 else
                 {
-                    GameObject.Find("GameCanvas").transform.GetChild(i).GetComponent<CS_PlayerButton>().UpdateButton(true);
+                player.Button.GetComponent<CS_PlayerButton>().UpdateButton(true);
                 }
+            if (player.Model.activeSelf && player.Model.GetComponent<CS_Player>().GetState() != CS_Player.State.Arrange)
+            {
+                player.Button.SetActive(false);
             }
-                      
-        }
+            else
+            {
+                player.Button.SetActive(true);
+
+            }
+            }
         if (BeginGainCost && (CostGainInterval != 0f) && (CostBalance < MaximumCost))
         {
             TimePast += Time.deltaTime;
@@ -194,7 +213,7 @@ public class CS_GameManager : MonoBehaviour {
             myCurrentPlayer.ShowHighlight();
 
             // set slow mode
-            Time.timeScale = 0.1f;
+            Time.timeScale = 0.1f ;
                     }
     }
 
@@ -251,7 +270,7 @@ public class CS_GameManager : MonoBehaviour {
         // reset current player
         myCurrentPlayer.gameObject.SetActive (false);
         myCurrentPlayer = null;
-        Time.timeScale = 1f;
+        Time.timeScale = 1f * SpeedMultiplier;
     }
 
     public void BeginDragDirection () {
@@ -305,7 +324,7 @@ public class CS_GameManager : MonoBehaviour {
                 myCurrentPlayer.Init ();
                 myCurrentPlayer = null;
                 // set slow mode back
-                Time.timeScale = 1f;
+                Time.timeScale = 1f * SpeedMultiplier;
                 return;
             }
         }
