@@ -35,7 +35,7 @@ public class StartGameButton : MonoBehaviour
 
     void Next()
     {
-         SceneManager.LoadScene("Game");
+         SceneManager.LoadScene("Game 1");
     }
     // Update is called once per frame
     void Update()

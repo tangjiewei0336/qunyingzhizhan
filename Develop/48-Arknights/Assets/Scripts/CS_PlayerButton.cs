@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using TMPro;
 
 public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
@@ -16,7 +15,9 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
     public int DeployCost;
     public Canvas Parent;
     public UnityEngine.UI.Image Filters;
-    public float RedeployTime {get
+    public float RedeployTime
+    {
+        get
         {
             return redeploytime;
         }
@@ -61,7 +62,7 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
             redeploytime = 0f;
             if (WithinMeans)
             {
-                Filters.color = new Color(0, 0, 0, 78/255f);
+                Filters.color = new Color(0, 0, 0, 78 / 255f);
                 Filters.gameObject.SetActive(true);
                 Timer.SetActive(false);
             }
@@ -145,24 +146,39 @@ public class CS_PlayerButton : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        CS_GameManager.Instance.BeginDragPlayer();
-        Debug.Log("OnBeginDrag");
+
+        if (redeploytime == 0f)
+        {
+            CS_GameManager.Instance.BeginDragPlayer();
+            Debug.Log("OnBeginDrag");
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        CS_GameManager.Instance.DragPlayer();
+
+        if (redeploytime == 0f)
+        {
+            CS_GameManager.Instance.DragPlayer();
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        CS_GameManager.Instance.EndDragPlayer();
+        if (redeploytime == 0f)
+        {
+            CS_GameManager.Instance.EndDragPlayer();
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        CS_GameManager.Instance.SetMyCurrentPlayer(CodeName);
-        Debug.Log("OnPointerDown");
+        if (redeploytime == 0f)
+        {
+            CS_GameManager.Instance.SetMyCurrentPlayer(CodeName);
+            Debug.Log("OnPointerDown");
+        }
     }
 
 }
+

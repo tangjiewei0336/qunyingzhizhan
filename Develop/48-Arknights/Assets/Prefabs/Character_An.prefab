@@ -1534,9 +1534,10 @@ MonoBehaviour:
   myTileType: 1
   myStatus_MaxHealth: 1135
   myStatus_Attack: 362
-  myStatus_AttackTime: 2.85
+  myStatus_AttackTime: 2
   DeployCost: 15
   CodeName: "\u5B89\u585E\u5C14"
+  PresettedReDeployTime: 5
 --- !u!82 &2057483624484478368
 AudioSource:
   m_ObjectHideFlags: 0
