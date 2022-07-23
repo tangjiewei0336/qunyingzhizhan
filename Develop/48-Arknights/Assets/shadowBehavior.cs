@@ -8,7 +8,6 @@ public class shadowBehavior : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        tx.text = "123";
     }
 
     // Update is called once per frame
