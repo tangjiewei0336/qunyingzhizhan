@@ -50,7 +50,16 @@ public class CS_LoadItem : MonoBehaviour
 
     }
 
+    public class ItemDesDetails
+    {
+        public int ItemSerial;
+        public string ChineseName;
+        public string Description;
+    }
+
+
     List<ItemDetail> StockOverview;
+    List<ItemDesDetails> DescriptionOverview;
 
     /// <summary>
     /// 获取玩家是否拥有足够的指定物品
@@ -58,11 +67,11 @@ public class CS_LoadItem : MonoBehaviour
     /// <param name="ItemSerial">物品序号</param>
     /// <param name="Consumption">物品的所需数量</param>
     /// <returns></returns>
-        public bool StockInquiry(int ItemSerial,int Consumption)
+    public bool StockInquiry(int ItemSerial, int Consumption)
     {
-        foreach(ItemDetail tempItem in StockOverview)
+        foreach (ItemDetail tempItem in StockOverview)
         {
-            if ((tempItem.ItemSerial == ItemSerial) &&(tempItem.Stock >= Consumption))
+            if ((tempItem.ItemSerial == ItemSerial) && (tempItem.Stock >= Consumption))
             {
                 return true;
             }
@@ -93,7 +102,7 @@ public class CS_LoadItem : MonoBehaviour
         {
             if ((tempItem.ItemSerial == ItemSerial) && ((tempItem.Stock >= Consumption) || AllowDebt))
             {
-                tempItem.Stock -=  Consumption;
+                tempItem.Stock -= Consumption;
                 if (tempItem.Stock == 0)
                 {
                     StockOverview.Remove(tempItem);
@@ -114,7 +123,8 @@ public class CS_LoadItem : MonoBehaviour
     /// 刷新局部背包物品，仅可在背包场景下使用。
     /// </summary>
     /// <param name="refreshMode"></param>
-    private void PartialRefresh(RefreshMode refreshMode) { 
+    private void PartialRefresh(RefreshMode refreshMode)
+    {
 
 
     }
@@ -126,7 +136,7 @@ public class CS_LoadItem : MonoBehaviour
         {
             if (tempItem.ItemSerial == ItemSerial)
             {
-                tempItem.Stock += Addition ;
+                tempItem.Stock += Addition;
                 return true;
             }
         }
@@ -200,8 +210,8 @@ public class CS_LoadItem : MonoBehaviour
     void ReWriteMyTxtByFileStreamTxt()
     {
         string path = AssetDatabase.GetAssetPath(InventoryDetail) + "/背包道具.txt";
-        string[] strs = new string[StockOverview.Count * 2-1];
-        for(int i = 0; i < StockOverview.Count; i++)
+        string[] strs = new string[StockOverview.Count * 2 - 1];
+        for (int i = 0; i < StockOverview.Count; i++)
         {
             strs[2 * i] = StockOverview[i].ItemSerial.ToString();
             strs[2 * i + 1] = StockOverview[i].Stock.ToString();
@@ -209,15 +219,43 @@ public class CS_LoadItem : MonoBehaviour
         File.WriteAllLines(path, strs);
     }
 
+    public void ButtonClicked(GameObject ClickedObject)
+    {
+        GameObject.Find("ZoomItem").GetComponent<RawImage>().color = new Color(1f, 1f, 1f, 1f);
+        GameObject.Find("ZoomItem").GetComponent<RawImage>().texture = ClickedObject.transform.Find("ItemFabric").GetComponent<RawImage>().texture;
+        foreach (ItemDesDetails tempDetail in DescriptionOverview)
+        {
+            if (tempDetail.ItemSerial == ClickedObject.GetComponent<ItemButtonLogic>().ItemSerial)
+            {
+                Debug.Log("Found Match.");
+                GameObject.Find("NameLabel").GetComponent<Text>().text = tempDetail.ChineseName;
+                GameObject.Find("DescriptionLabel").GetComponent<Text>().text = tempDetail.Description;
 
+            }
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         DontDestroyOnLoad(this.gameObject);
         StockOverview = new List<ItemDetail>();
+        DescriptionOverview = new List<ItemDesDetails>();
         inventorydetail = ReadProf(InventoryDetail);
         itemdescription = ReadProf(ItemDescription);
+        Debug.Log("itemdescription.Length : " + itemdescription.Length);
+        for (int i = 0; i < itemdescription.Length / 3; i++)
+        {
+            ItemDesDetails TempDetail = new ItemDesDetails
+            {
+                ItemSerial = int.Parse(itemdescription[3 * i]),
+                ChineseName = itemdescription[3 * i + 1],
+                Description = itemdescription[3 * i + 2]
+            };
+            TempDetail.Description = TempDetail.Description.Replace("/n", "\n");
+            DescriptionOverview.Add(TempDetail);
+            Debug.Log("Description Init:" + TempDetail.ItemSerial);
+        }
 
         for (int i = 0; i < inventorydetail.Length / 2; i++)
         {
@@ -231,13 +269,14 @@ public class CS_LoadItem : MonoBehaviour
 
             Debug.Log(TempItem.ItemSerial);
             GameObject TempObject = Instantiate(ItemPrefab);
+            TempObject.GetComponent<ItemButtonLogic>().ItemSerial = TempItem.ItemSerial;
 
             foreach (Texture ImageResource in RawImages)
             {
                 Debug.Log(Mid(ImageResource.name, 1, 4));
                 if (Mid(ImageResource.name, 1, 4) == TempItem.ItemSerial.ToString())
                 {
-                    TempObject.transform.SetParent(GameObject.Find("Bag").transform);
+                    TempObject.transform.SetParent(GameObject.Find("Inventory").transform);
                     RawImage TempImage = TempObject.transform.Find("ItemFabric").GetComponent<RawImage>();
                     TempImage.texture = ImageResource;
                     TextMeshProUGUI Digits = TempObject.transform.Find("Digits").GetComponent<TextMeshProUGUI>();
@@ -249,7 +288,7 @@ public class CS_LoadItem : MonoBehaviour
                     else
                     {
                         Digits.text = (TempItem.Stock / 1000f).ToString("f1") + "万";
-                    }             
+                    }
                 }
 
                 RawImage TempUnderToneImage = TempObject.transform.GetComponent<RawImage>();
@@ -260,29 +299,29 @@ public class CS_LoadItem : MonoBehaviour
                     case "1":
                         {
                             TempItem.Rarity = ItemRarity.Legendary;
-                                                break;
+                            break;
                         }
                     case "2":
                         {
                             TempItem.Rarity = ItemRarity.Epic;
-                            
+
                             break;
                         }
                     case "3":
                         {
-               
+
                             TempItem.Rarity = ItemRarity.Rare;
                             break;
                         }
                     case "4":
                         {
-                        
+
                             TempItem.Rarity = ItemRarity.Normal;
                             break;
                         }
 
                 }
- 
+
 
             }
         }
