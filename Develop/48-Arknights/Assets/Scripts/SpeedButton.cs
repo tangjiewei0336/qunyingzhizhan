@@ -5,33 +5,45 @@ using UnityEngine.UI;
 
 public class SpeedButton : MonoBehaviour
 {
-    public Text text1;
+    public Text SpeedButtonText;
     // Start is called before the first frame update
     public CS_GameManager control;
+
+    public bool Paused;
+    public int SpeedTo = 1;
+
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void Click()
     {
-        Debug.Log("SpeedChange");
-        if (text1.text == "1x")
+        if (SpeedButtonText.text == "1x")
         {
-            Debug.Log("SpeedChange");
-            control.SetSpeed(2);
-            text1.text = "2x";
+            SpeedTo = 2;
+            SpeedButtonText.text = "2x";
         }
         else
         {
-            control.SetSpeed(1);
-            text1.text = "1x";
+            SpeedTo = 1;
+            SpeedButtonText.text = "1x";
         }
+
+        if (!Paused)
+        {
+            control.SetSpeed(SpeedTo);
+        }
+        else
+        {
+            control.SetSpeed(0);
+        }
+
     }
 }

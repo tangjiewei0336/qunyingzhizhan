@@ -149,7 +149,7 @@ public class CS_LoadItem : MonoBehaviour
 
     public Texture ReturnTextureByRarity(int ItemSerial)
     {
-        switch (Mid(ItemSerial.ToString(), 1, 1))
+        switch (Mid(ItemSerial.ToString(), 2, 1))
         {
             case "4":
                 {
@@ -198,7 +198,7 @@ public class CS_LoadItem : MonoBehaviour
                 }
             default:
                 {
-                    throw new System.Exception("找不到指定的物品底纹。");
+                    throw new System.Exception("稀有度为" + Mid(ItemSerial.ToString(), 2, 1) + "，找不到指定的物品底纹。");
                 }
         }
     }
@@ -230,20 +230,26 @@ public class CS_LoadItem : MonoBehaviour
                 Debug.Log("Found Match.");
                 GameObject.Find("NameLabel").GetComponent<Text>().text = tempDetail.ChineseName;
                 GameObject.Find("DescriptionLabel").GetComponent<Text>().text = tempDetail.Description;
-
+            }
+        }
+        foreach (ItemDetail tempDetail in StockOverview)
+        {
+            if (tempDetail.ItemSerial == ClickedObject.GetComponent<ItemButtonLogic>().ItemSerial)
+            {
+                Debug.Log("Found Match.");
+                GameObject.Find("StockLabel").GetComponent<Text>().text = "持有" + tempDetail.Stock.ToString();
             }
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
+    public void LoadItemToMemory()
     {
-        DontDestroyOnLoad(this.gameObject);
         StockOverview = new List<ItemDetail>();
         DescriptionOverview = new List<ItemDesDetails>();
         inventorydetail = ReadProf(InventoryDetail);
         itemdescription = ReadProf(ItemDescription);
         Debug.Log("itemdescription.Length : " + itemdescription.Length);
+
         for (int i = 0; i < itemdescription.Length / 3; i++)
         {
             ItemDesDetails TempDetail = new ItemDesDetails
@@ -254,7 +260,6 @@ public class CS_LoadItem : MonoBehaviour
             };
             TempDetail.Description = TempDetail.Description.Replace("/n", "\n");
             DescriptionOverview.Add(TempDetail);
-            Debug.Log("Description Init:" + TempDetail.ItemSerial);
         }
 
         for (int i = 0; i < inventorydetail.Length / 2; i++)
@@ -264,9 +269,41 @@ public class CS_LoadItem : MonoBehaviour
                 ItemSerial = int.Parse(inventorydetail[2 * i]),
                 Stock = int.Parse(inventorydetail[2 * i + 1])
             };
+            switch (Mid(TempItem.ItemSerial.ToString(), 2, 1))
+            {
+                case "1":
+                    {
+                        TempItem.Rarity = ItemRarity.Legendary;
+                        break;
+                    }
+                case "2":
+                    {
+                        TempItem.Rarity = ItemRarity.Epic;
 
+                        break;
+                    }
+                case "3":
+                    {
+
+                        TempItem.Rarity = ItemRarity.Rare;
+                        break;
+                    }
+                case "4":
+                    {
+
+                        TempItem.Rarity = ItemRarity.Normal;
+                        break;
+                    }
+
+            }
             StockOverview.Add(TempItem);
+        }
+    }
 
+    void PrintItemOnScreen()
+    {
+        foreach (ItemDetail TempItem in StockOverview)
+        {
             Debug.Log(TempItem.ItemSerial);
             GameObject TempObject = Instantiate(ItemPrefab);
             TempObject.GetComponent<ItemButtonLogic>().ItemSerial = TempItem.ItemSerial;
@@ -292,39 +329,17 @@ public class CS_LoadItem : MonoBehaviour
                 }
 
                 RawImage TempUnderToneImage = TempObject.transform.GetComponent<RawImage>();
-
                 TempUnderToneImage.texture = ReturnTextureByRarity(TempItem.ItemSerial);
-                switch (Mid(TempItem.ItemSerial.ToString(), 1, 1))
-                {
-                    case "1":
-                        {
-                            TempItem.Rarity = ItemRarity.Legendary;
-                            break;
-                        }
-                    case "2":
-                        {
-                            TempItem.Rarity = ItemRarity.Epic;
-
-                            break;
-                        }
-                    case "3":
-                        {
-
-                            TempItem.Rarity = ItemRarity.Rare;
-                            break;
-                        }
-                    case "4":
-                        {
-
-                            TempItem.Rarity = ItemRarity.Normal;
-                            break;
-                        }
-
-                }
-
-
             }
         }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        DontDestroyOnLoad(this.gameObject);
+        LoadItemToMemory();
+        PrintItemOnScreen();
     }
 
     /// <summary>

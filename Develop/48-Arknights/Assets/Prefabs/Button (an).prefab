@@ -236,7 +236,6 @@ MonoBehaviour:
   Filters: {fileID: 2528934802076900775}
   Timer: {fileID: 3896920740869069644}
   textM: {fileID: 0}
-  TimerMaterial: {fileID: 2100000, guid: 566c022b612d28042988378053536339, type: 2}
 --- !u!1 &1153191957721291322
 GameObject:
   m_ObjectHideFlags: 0
