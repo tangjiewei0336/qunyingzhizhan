@@ -38,11 +38,20 @@ public class SpeedButton : MonoBehaviour
 
         if (!Paused)
         {
-            control.SetSpeed(SpeedTo);
+            if (control.FriendSelecting)
+            {
+                control.SetSpeed(SpeedScale.Slow, SpeedLockBehavior.Unlock, SpeedTo);
+            }
+            else
+            {
+                control.SetSpeed(SpeedScale.Normal, SpeedLockBehavior.Unlock, SpeedTo);
+            }
+
         }
         else
         {
-            control.SetSpeed(0);
+            
+                control.SetSpeed(SpeedScale.Paused, SpeedLockBehavior.Lock, SpeedTo);
         }
 
     }

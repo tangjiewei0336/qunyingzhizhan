@@ -24,12 +24,20 @@ public class CS_PauseButton : MonoBehaviour
         }
         if (!SpeedButtonScript.Paused)
         {
-            control.SetSpeed(SpeedButtonScript.SpeedTo );
-            PauseImage.SetActive(false);
+            if (control.FriendSelecting)
+            {
+                control.SetSpeed(SpeedScale.Slow, SpeedLockBehavior.Unlock);
+                PauseImage.SetActive(false);
+            }
+            else
+            {
+                control.SetSpeed(SpeedScale.Normal, SpeedLockBehavior.Unlock);
+                PauseImage.SetActive(false);
+            }
         }
         else
         {
-            control.SetSpeed(0);
+            control.SetSpeed(SpeedScale.Paused, SpeedLockBehavior.Lock);
             PauseImage.SetActive(true);
         }
     }
