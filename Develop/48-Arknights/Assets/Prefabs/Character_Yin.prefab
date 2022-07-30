@@ -320,6 +320,7 @@ MonoBehaviour:
   myAudioSource_Attack: {fileID: 5162120291494773141}
   myTileType: 0
   myStatus_MaxHealth: 2560
+  myCurrentHealth: 0
   myStatus_Attack: 800
   myStatus_AttackTime: 1.3
   DeployCost: 20
@@ -607,6 +608,7 @@ GameObject:
   m_Component:
   - component: {fileID: 685053366043701793}
   - component: {fileID: 1154470971126850946}
+  - component: {fileID: 3135731674219030289}
   m_Layer: 0
   m_Name: RayCollider
   m_TagString: Untagged
@@ -639,8 +641,24 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.6073781, y: 1.350687, z: 0.79946804}
-  m_Center: {x: -0.005300343, y: 0.17534351, z: 0.10026598}
+  m_Size: {x: 0.6073781, y: 1.4486911, z: 0.79946804}
+  m_Center: {x: -0.005300343, y: 0.2918254, z: 0.10026598}
+--- !u!54 &3135731674219030289
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2369734531129165511}
+  serializedVersion: 2
+  m_Mass: 0.0000001
+  m_Drag: 0
+  m_AngularDrag: 0
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &2519577526511822901
 GameObject:
   m_ObjectHideFlags: 0

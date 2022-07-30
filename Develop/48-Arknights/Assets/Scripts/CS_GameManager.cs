@@ -6,29 +6,67 @@ using System;
 
 public class CS_GameManager : MonoBehaviour
 {
-    public GridLayout FlowLayout;
 
+    #region 游戏全局属性
+    /// <summary>
+    /// 是否让玩家获得费用
+    /// </summary>
+    bool BeginGainCost;
+    float TimePast;
+
+    [Header("接口指定")]
     public GameObject HpBar = null;
-    public CS_HPBar HpBarScript = null;
+    [SerializeField] GameObject myDirectionObject = null;
+    public CS_HPBar HPScript;
+    public GameObject CameraObj;
+    public GameObject WithDrawObj;
 
-    private static CS_GameManager instance = null;
-    public static CS_GameManager Instance { get { return instance; } }
-
-    [SerializeField] int myMaxLife = 10;
-    private int myCurrentLife;
-
+    [Header("资源指定")]
     [SerializeField] GameObject[] myPlayerPrefabs = null;
 
     [SerializeField] GameObject[] myButtonPrefabs = null;
 
+    [Header("费用设定")]
+    [Tooltip("指定每多少秒获得一点部署费用，设定为0则不自动获得费用。")]
+    public float CostGainInterval = 3;
+    [Tooltip("指定关卡开始时的部署费用")]
+    public int InitialCostBalance = 9;
+    [Tooltip("自然累计的最大部署费用")]
+    public int MaximumCost = 99;
+    [Tooltip("当前的部署费用")]
+    public int CostBalance = 0;
+
+
+    [Header("游戏属性")]
+    [SerializeField] int myMaxLife = 10;
+    private int myCurrentLife;
+
+    private static CS_GameManager instance = null;
+    public static CS_GameManager Instance { get { return instance; } }
+
     private List<CS_Player> myPlayerList = new List<CS_Player>();
 
-    [SerializeField] GameObject myDirectionObject = null;
 
-    private CS_Player myCurrentPlayer;
-    public CS_Player myCurrentStagePlayer;
+    /// <summary>
+    /// 从干员选择窗口传入的入编友方单位的基本信息。
+    /// </summary>
+    List<FriendData> FriendAssembly;
+    /// <summary>
+    /// 记载入编友方单位的全部属性。
+    /// </summary>
+    List<PersonalElementsCollection> StageElements = new List<PersonalElementsCollection>();
 
+    #endregion
 
+    #region 时间流逝
+    /// <summary>
+    /// 允许改变Time.TimeScale。
+    /// </summary>
+    bool SpeedLocked = false;
+
+    /// <summary>
+    /// 默认的游戏运行速度。
+    /// </summary>
     int SpeedMultiplier = 1;
 
     [Obsolete("请不要直接设定速度，改用SetSpeed(SpeedScale speedScale, SpeedLockBehavior speedLockBehavior = SpeedLockBehavior.DoNothing,int SpeedTo = 0)")]
@@ -37,213 +75,7 @@ public class CS_GameManager : MonoBehaviour
         Time.timeScale = speed;
     }
 
-    private void Awake()
-    {
-        if (instance != null && instance != this)
-        {
-            Destroy(this.gameObject);
-        }
-        else
-        {
-            instance = this;
-        }
-    }
-
-    List<FriendData> FriendAssembly;
-    List<PersonalElementsCollection> StageElements = new List<PersonalElementsCollection>();
-
-    public bool DoRayCast = true;
-
-    private void Start()
-    {
-        // init total lives
-        myCurrentLife = myMaxLife;
-        CS_UIManager.Instance.SetLife(myCurrentLife);
-
-        FriendAssembly = GameObject.Find("DataStructure").GetComponent<DataStructure>().TransportMessage.StandbyArmour;
-        Debug.Log("Selected Friend Unit Detected:" + FriendAssembly.Count);
-        int currentSerial = 0;
-        foreach (FriendData TempFriendData in FriendAssembly)
-        {
-            PersonalElementsCollection TempElementInfo = new PersonalElementsCollection();
-            int TempDeployCost = 0;
-            // init all players
-            Debug.Log("Call Player Init. Iteration:" + (currentSerial + 1).ToString());
-            foreach (GameObject f_prefab in myPlayerPrefabs)
-            {
-                if (f_prefab.GetComponent<CS_Player>().CodeName == TempFriendData.Name)
-                {
-                    GameObject f_object = Instantiate(f_prefab, this.transform);
-                    TempDeployCost = f_object.GetComponent<CS_Player>().GetDeployCost();
-                    TempElementInfo.Model = f_object;
-                    f_object.SetActive(false);
-                    // get player script
-                    CS_Player f_player = f_object.GetComponent<CS_Player>();
-                    // add script to list
-                    myPlayerList.Add(f_player);
-                }
-            }
-            Debug.Log("Call Button Init. Iteration:" + (currentSerial + 1).ToString());
-            foreach (GameObject f_prefab in myButtonPrefabs)
-            {
-                if (f_prefab.GetComponent<CS_PlayerButton>().CodeName == TempFriendData.Name)
-                {
-                    GameObject f_object = Instantiate(f_prefab, this.transform);
-                    f_object.transform.SetParent(GameObject.Find("GameCanvas/FriendPanel").transform);
-                    f_object.SetActive(true);
-                    TempElementInfo.Button = f_object;
-                    RectTransform TempPositionInfo = f_object.GetComponent<RectTransform>();
-                    TempPositionInfo.gameObject.GetComponent<CS_PlayerButton>().DeployCost = TempDeployCost;
-                    TempPositionInfo.localScale = new Vector3(1, 1, 1);
-                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, 300 * currentSerial, 300);
-                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, 300);
-                }
-            }
-            StageElements.Add(TempElementInfo);
-            Debug.Log("FriendAssembly.Count:" + FriendAssembly.Count);
-            currentSerial += 1;
-        }
-
-
-        // init direction object
-        myDirectionObject.SetActive(false);
-        CostBalance = InitialCostBalance;
-        BeginGainCost = true;
-        Debug.Log("Game Start");
-    }
-
-    /// <summary>
-    /// 是否让玩家获得费用
-    /// </summary>
-    bool BeginGainCost;
-    float TimePast;
-    [Tooltip("指定每多少秒获得一点部署费用，设定为0则不自动获得费用。")]
-    public float CostGainInterval = 3;
-    [Tooltip("指定关卡开始时的部署费用")]
-    public int InitialCostBalance = 9;
-    public int MaximumCost = 99;
-    public int CostBalance = 0;
-
-    private bool friendselecting;
-    public bool FriendSelecting {get{
-            return friendselecting;
-        }
-        set
-        {
-            friendselecting = value;
-            if (value)
-            {
-                HpBar.SetActive(true);
-                Debug.Log("Transmitting Player:" + myCurrentStagePlayer.CodeName);
-            }
-            else
-            {
-                HpBar.SetActive(false);
-            }
-
-        }
-    }
-
-    void Update()
-    {
-        foreach (PersonalElementsCollection player in StageElements)
-        {
-            if (player.Button.GetComponent<CS_PlayerButton>().DeployCost <= CostBalance)
-            {
-                player.Button.GetComponent<CS_PlayerButton>().UpdateButton(false);
-            }
-            else
-            {
-                player.Button.GetComponent<CS_PlayerButton>().UpdateButton(true);
-            }
-            if (player.Model.activeSelf && player.Model.GetComponent<CS_Player>().GetState() != CS_Player.State.Arrange)
-            {
-                player.Button.SetActive(false);
-            }
-            else
-            {
-                player.Button.SetActive(true);
-
-            }
-        }
-        if (BeginGainCost && (CostGainInterval != 0f) && (CostBalance < MaximumCost))
-        {
-            TimePast += Time.deltaTime;
-            if (TimePast > CostGainInterval)
-            {
-                TimePast = 0;
-                CostBalance += 1;
-            }
-            CS_UIManager.Instance.SetProgressbarValue(TimePast / CostGainInterval);
-        }
-        CS_UIManager.Instance.SetCost(CostBalance);
-
-        if(DoRayCast)
-        {
-            RaycastHit t_hit;
-            Ray t_ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Input.GetMouseButtonUp(0))
-            {
-                if (Physics.Raycast(t_ray, out t_hit))
-                {
-                    Debug.Log("Raycasting...");
-                    CS_Player t_player = t_hit.collider.gameObject.transform.parent.GetComponent<CS_Player>();
-                    if (t_player != null)
-                    {
-                        Debug.Log("Object Detected: " + t_player.CodeName);
-                        if (t_player.gameObject.activeSelf)
-                        {
-                            Debug.Log("Reflecting: " + t_player.CodeName);
-                            if (!FriendSelecting)
-                            {
-                                Debug.Log("Selected New Friend Unit: " + t_player.CodeName);
-                                myCurrentStagePlayer = t_player;
-                                myCurrentStagePlayer.ShowHighlight();
-                                SetSpeed(SpeedScale.Slow,SpeedLockBehavior.Lock,0);
-                                FriendSelecting = true;
-
-                            }
-                            if (FriendSelecting && (myCurrentStagePlayer != t_player))
-                            {
-                                Debug.Log("Selected Another Friend Unit: " + t_player.CodeName);
-                                myCurrentStagePlayer.HideHighlight();
-                                myCurrentStagePlayer = t_player;
-                                myCurrentStagePlayer.ShowHighlight();
-                                SetSpeed(SpeedScale.Slow, SpeedLockBehavior.Lock, 0);
-                                FriendSelecting = true;
-                            }
-                        }
-                    }
-                    else 
-                    {
-                        Vector3 MousePos = Input.mousePosition;
-                        Debug.Log("X:" + MousePos.x + "  Y:" + MousePos.y);
-                        if ((MousePos.x < Screen.width - 270) ||  (MousePos.y <Screen.height -  90))
-                        {
-                            Debug.Log(t_hit.collider.gameObject.transform.parent.name);
-                            UndoFriendSelection();
-                        }
-                    }
-                }
-            }
-        }
-        
-    }
-
-    public void UndoFriendSelection()
-    {
-        if (myCurrentStagePlayer != null)
-        {
-            myCurrentStagePlayer.HideHighlight();
-            FriendSelecting = false;
-            SetSpeed(SpeedScale.Normal, SpeedLockBehavior.Unlock, 0);
-        }
-    }
-
-
-    bool SpeedLocked = false;
-
-    public void SetSpeed(SpeedScale speedScale, SpeedLockBehavior speedLockBehavior = SpeedLockBehavior.DoNothing,int SpeedTo = 0)
+    public void SetSpeed(SpeedScale speedScale, SpeedLockBehavior speedLockBehavior = SpeedLockBehavior.DoNothing, int SpeedTo = 0)
     {
         if (SpeedTo == 1)
         {
@@ -284,38 +116,13 @@ public class CS_GameManager : MonoBehaviour
             SpeedLocked = true;
         }
     }
+    #endregion
 
-    public void SetDeadTimer(string CodeName, float RedeployTime)
-    {
-        Debug.Log("CS_GameManager : Death Signal Transmitted. Codename: " + CodeName);
-        foreach (PersonalElementsCollection personalElement in StageElements)
-        {
-            Debug.Log("Comparing: " + personalElement.CodeName);
-            if (personalElement.CodeName == CodeName)
-            {
-                personalElement.SetDead(RedeployTime);
-            }
-        }
-    }
-
+    #region 干员拖放
     /// <summary>
-    /// 扣除部署费用。
+    /// 正在拖放的干员。
     /// </summary>
-    /// <param name="expenditure">支出</param>
-    /// <returns>是否扣除成功</returns>
-    public bool reduceCost(int expenditure)
-    {
-        if (CostBalance >= expenditure)
-        {
-            CostBalance -= expenditure;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
+    private CS_Player myCurrentPlayer;
     public void SetMyCurrentPlayer(string CodeName)
     {
         // dont do anything if its setting direction
@@ -423,7 +230,375 @@ public class CS_GameManager : MonoBehaviour
         SetSpeed(SpeedScale.Normal, SpeedLockBehavior.Unlock, 0);
         DoRayCast = true;
     }
+    #endregion
 
+    #region 干员选中
+    /// <summary>
+    /// 当前选中的干员。
+    /// </summary>
+    public CS_Player myCurrentStagePlayer;
+    /// <summary>
+    /// 指明是否选中了舞台上的干员。
+    /// </summary>
+    private bool friendselecting;
+
+    /// <summary>
+    /// 取消选中一切干员
+    /// </summary>
+    public void UndoFriendSelection()
+    {
+        if (myCurrentStagePlayer != null)
+        {
+            myCurrentStagePlayer.HideHighlight();
+            FriendSelecting = false;
+            SetSpeed(SpeedScale.Normal, SpeedLockBehavior.Unlock, 0);
+        }
+    }
+
+
+    public bool FriendSelecting
+    {
+        get
+        {
+            return friendselecting;
+        }
+        set
+        {
+            friendselecting = value;
+
+            CameraRotateStep = 1;
+            if (value)
+            {
+                HpBar.SetActive(true);
+                HPScript.ChangePerson = true;
+                WithDrawObj.SetActive(true);
+                Debug.Log("Transmitting Player:" + myCurrentStagePlayer.CodeName);
+            }
+            else
+            {
+                HpBar.SetActive(false);
+                WithDrawObj.SetActive(false);
+            }
+
+        }
+    }
+    #endregion
+
+    #region 摄像机旋转参数
+    [Tooltip("指明摄像机旋转中心")]
+    public Transform CameraRotaionNode;
+
+    [Range(2, 50)]
+    [Tooltip("旋转到指定位置花费的步数。")]
+    public int RotateSpeed = 30;
+
+    /// <summary>
+    /// 摄像机微量旋转的进展状态。设置为0表示未在旋转。
+    /// </summary>
+    private int CameraRotateStep = 0;
+
+    /// <summary>
+    /// 摄像机归位时对应的旋转角度。
+    /// </summary>
+    private readonly Vector3 ZeroRotation = new Vector3(55f * Mathf.Deg2Rad, 0f * Mathf.Deg2Rad, 0f * Mathf.Deg2Rad);
+    private readonly Vector3 ZeroPosition = new Vector3(0f * Mathf.Deg2Rad, 12.3f * Mathf.Deg2Rad, -9.11f * Mathf.Deg2Rad);
+    [Header("相机旋转调试")]
+
+    public Vector3 CameraPos;
+    public Vector3 FocusPoint;
+    public Vector3 FacePoint;
+
+    public void RotateTo()
+    {
+        if (friendselecting)
+        {
+            Debug.Log("触发选中旋转");
+            FocusPoint = myCurrentStagePlayer.transform.position - CameraPos;
+        }
+        else
+        {
+            Debug.Log("触发空旋转");
+            FocusPoint = new Vector3(0, -Mathf.Sin(ZeroRotation.x), Mathf.Cos(ZeroRotation.x));
+        }
+    }
+
+    public GameObject SimCamera;
+    private void StepSpin()
+    {
+        CameraPos = SimCamera.transform.position;
+        Vector3 DirectionPoint = Vector3.RotateTowards(SimCamera.transform.forward, FocusPoint, 0.02f, 0f);
+        SimCamera.transform.rotation = Quaternion.LookRotation(DirectionPoint);
+        Camera.main.transform.eulerAngles = new Vector3(SimCamera.transform.eulerAngles.x, SimCamera.transform.eulerAngles.y, SimCamera.transform.eulerAngles.y);
+        if (CameraRotateStep == 1)
+        {
+            RotateTo();
+            CameraRotateStep = 0;
+        }
+    }
+    #endregion
+
+    #region 游戏加载和刷新
+
+    /// <summary>
+    /// 处理传入数据，激活对象池
+    /// </summary>
+    private void LoadStage()
+    {
+        FriendAssembly = GameObject.Find("DataStructure").GetComponent<DataStructure>().TransportMessage.StandbyArmour;
+        Debug.Log("Selected Friend Unit Detected:" + FriendAssembly.Count);
+        int currentSerial = 0;
+        foreach (FriendData TempFriendData in FriendAssembly)
+        {
+            PersonalElementsCollection TempElementInfo = new PersonalElementsCollection();
+            int TempDeployCost = 0;
+            // init all players
+            Debug.Log("Call Player Init. Iteration:" + (currentSerial + 1).ToString());
+            foreach (GameObject f_prefab in myPlayerPrefabs)
+            {
+                if (f_prefab.GetComponent<CS_Player>().CodeName == TempFriendData.Name)
+                {
+                    GameObject f_object = Instantiate(f_prefab, this.transform);
+                    TempDeployCost = f_object.GetComponent<CS_Player>().GetDeployCost();
+                    TempElementInfo.Model = f_object;
+                    f_object.SetActive(false);
+                    // get player script
+                    CS_Player f_player = f_object.GetComponent<CS_Player>();
+                    // add script to list
+                    myPlayerList.Add(f_player);
+                }
+            }
+            Debug.Log("Call Button Init. Iteration:" + (currentSerial + 1).ToString());
+            foreach (GameObject f_prefab in myButtonPrefabs)
+            {
+                if (f_prefab.GetComponent<CS_PlayerButton>().CodeName == TempFriendData.Name)
+                {
+                    GameObject f_object = Instantiate(f_prefab, this.transform);
+                    f_object.transform.SetParent(GameObject.Find("GameCanvas/FriendPanel").transform);
+                    f_object.SetActive(true);
+                    TempElementInfo.Button = f_object;
+                    RectTransform TempPositionInfo = f_object.GetComponent<RectTransform>();
+                    TempPositionInfo.gameObject.GetComponent<CS_PlayerButton>().DeployCost = TempDeployCost;
+                    TempPositionInfo.localScale = new Vector3(1, 1, 1);
+                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, 300 * currentSerial, 300);
+                    TempPositionInfo.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0, 300);
+                }
+            }
+            StageElements.Add(TempElementInfo);
+            Debug.Log("FriendAssembly.Count:" + FriendAssembly.Count);
+            currentSerial += 1;
+        }
+
+    }
+
+    /// <summary>
+    /// 根据部署费用和部署状态调整按钮展示
+    /// </summary>
+    private void SetButtonColor()
+    {
+        foreach (PersonalElementsCollection player in StageElements)
+        {
+            if (player.Button.GetComponent<CS_PlayerButton>().DeployCost <= CostBalance)
+            {
+                player.Button.GetComponent<CS_PlayerButton>().UpdateButton(false);
+            }
+            else
+            {
+                player.Button.GetComponent<CS_PlayerButton>().UpdateButton(true);
+            }
+            if (player.Model.activeSelf && player.Model.GetComponent<CS_Player>().GetState() != CS_Player.State.Arrange)
+            {
+                player.Button.SetActive(false);
+            }
+            else
+            {
+                player.Button.SetActive(true);
+
+            }
+        }
+    }
+
+    /// <summary>
+    /// 刷新当前帧的部署费用。
+    /// </summary>
+    void CostCheckOut()
+    {
+        if (BeginGainCost && (CostGainInterval != 0f) && (CostBalance < MaximumCost))
+        {
+            TimePast += Time.deltaTime;
+            if (TimePast > CostGainInterval)
+            {
+                TimePast = 0;
+                CostBalance += 1;
+            }
+            CS_UIManager.Instance.SetProgressbarValue(TimePast / CostGainInterval);
+        }
+        CS_UIManager.Instance.SetCost(CostBalance);
+    }
+
+    public void StopGettingCost()
+    {
+        BeginGainCost = false;
+    }
+    public void LoseLife()
+    {
+        myCurrentLife--;
+        CS_UIManager.Instance.SetLife(myCurrentLife);
+
+        if (myCurrentLife <= 0)
+        {
+            CS_UIManager.Instance.ShowPageFail();
+            SetSpeed(SpeedScale.Paused, SpeedLockBehavior.Lock, 0);
+        }
+    }
+    #endregion
+
+    #region 光线投射
+
+    [Tooltip("是否进行舞台干员的光线投射")]
+    public bool DoRayCast = true;
+
+    /// <summary>
+    /// 检查鼠标是否与干员碰撞箱发生碰撞。
+    /// </summary>
+    void DetectMousePointerOnUnits()
+    {
+        if (DoRayCast)
+        {
+            RaycastHit t_hit;
+            Ray t_ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Input.GetMouseButtonUp(0))
+            {
+                if (Physics.Raycast(t_ray, out t_hit))
+                {
+                    Debug.Log("Raycasting...");
+                    CS_Player t_player = t_hit.collider.gameObject.transform.parent.GetComponent<CS_Player>();
+                    if (t_player != null)
+                    {
+                        Debug.Log("Object Detected: " + t_player.CodeName);
+                        if (t_player.gameObject.activeSelf)
+                        {
+                            Debug.Log("Reflecting: " + t_player.CodeName);
+                            if (!FriendSelecting)
+                            {
+                                Debug.Log("Selected New Friend Unit: " + t_player.CodeName);
+                                myCurrentStagePlayer = t_player;
+                                myCurrentStagePlayer.ShowHighlight();
+                                SetSpeed(SpeedScale.Slow, SpeedLockBehavior.Lock, 0);
+                                FriendSelecting = true;
+
+                            }
+                            if (FriendSelecting && (myCurrentStagePlayer != t_player))
+                            {
+                                Debug.Log("Selected Another Friend Unit: " + t_player.CodeName);
+                                myCurrentStagePlayer.HideHighlight();
+                                myCurrentStagePlayer = t_player;
+                                myCurrentStagePlayer.ShowHighlight();
+                                SetSpeed(SpeedScale.Slow, SpeedLockBehavior.Lock, 0);
+                                FriendSelecting = true;
+
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Vector3 MousePos = Input.mousePosition;
+                        Debug.Log("X:" + MousePos.x + "  Y:" + MousePos.y);
+                        if ((MousePos.x < Screen.width - 270) || (MousePos.y < Screen.height - 90))
+                        {
+                            Debug.Log(t_hit.collider.gameObject.transform.parent.name);
+                            UndoFriendSelection();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    #endregion
+
+    #region Unity方法
+    private void Awake()
+    {
+        SimCamera.transform.rotation = Camera.main.transform.rotation;
+        SimCamera.transform.position = Camera.main.transform.position;
+        Debug.Log(Camera.main.transform.eulerAngles);
+        FacePoint = FocusPoint;
+        if (instance != null && instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            instance = this;
+        }
+    }
+
+    private void Start()
+    {
+        // init total lives
+        myCurrentLife = myMaxLife;
+        CS_UIManager.Instance.SetLife(myCurrentLife);
+
+        LoadStage();
+
+        // init direction object
+        myDirectionObject.SetActive(false);
+        CostBalance = InitialCostBalance;
+        BeginGainCost = true;
+        Debug.Log("Game Start");
+    }
+    void Update()
+    {
+        SetButtonColor();
+        DetectMousePointerOnUnits();
+        CostCheckOut();
+        StepSpin();
+    }
+    #endregion
+
+    #region 干员部署与再部署
+    public void SetDeadTimer(string CodeName, float RedeployTime)
+    {
+        Debug.Log("CS_GameManager : Death Signal Transmitted. Codename: " + CodeName);
+        foreach (PersonalElementsCollection personalElement in StageElements)
+        {
+            Debug.Log("Comparing: " + personalElement.CodeName);
+            if (personalElement.CodeName == CodeName)
+            {
+                personalElement.SetDead(RedeployTime);
+            }
+        }
+    }
+
+    public void WithDraw()
+    {
+        if (friendselecting)
+        {
+            myCurrentStagePlayer.gameObject.SetActive(false);
+            SetDeadTimer(myCurrentStagePlayer.CodeName, 2f);
+            friendselecting = false;
+        }
+    }
+
+    /// <summary>
+    /// 扣除部署费用。
+    /// </summary>
+    /// <param name="expenditure">支出</param>
+    /// <returns>是否扣除成功</returns>
+    public bool reduceCost(int expenditure)
+    {
+        if (CostBalance >= expenditure)
+        {
+            CostBalance -= expenditure;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    #endregion
+
+    #region 干员朝向设置
     public void BeginDragDirection()
     {
     }
@@ -502,21 +677,8 @@ public class CS_GameManager : MonoBehaviour
         }
     }
 
-    public void StopGettingCost()
-    {
-        BeginGainCost = false;
-    }
-    public void LoseLife()
-    {
-        myCurrentLife--;
-        CS_UIManager.Instance.SetLife(myCurrentLife);
+    #endregion
 
-        if (myCurrentLife <= 0)
-        {
-            CS_UIManager.Instance.ShowPageFail();
-            SetSpeed(SpeedScale.Paused , SpeedLockBehavior.Lock, 0);
-        }
-    }
 
     public List<CS_Player> GetPlayerList()
     {

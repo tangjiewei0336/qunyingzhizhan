@@ -34,7 +34,7 @@ public class CS_Player : MonoBehaviour {
     [SerializeField] CS_Tile.Type myTileType = CS_Tile.Type.Ground;
     public int myStatus_MaxHealth = 2400;
     public int myCurrentHealth;
-    [SerializeField] protected int myStatus_Attack = 700;
+    public int myStatus_Attack = 700;
     [SerializeField] protected float myStatus_AttackTime = 0.5f;
     protected float myAttackTimer = 0;
     [SerializeField] int DeployCost = 24;
