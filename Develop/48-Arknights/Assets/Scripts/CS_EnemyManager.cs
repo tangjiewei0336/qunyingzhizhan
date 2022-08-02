@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class CS_EnemyManager : MonoBehaviour {
 
     private static CS_EnemyManager instance = null;
