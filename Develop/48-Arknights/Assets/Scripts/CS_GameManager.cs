@@ -709,6 +709,9 @@ public class CS_GameManager : MonoBehaviour
     }
 }
 
+/// <summary>
+/// 用于记载入编友方单位的全部属性。
+/// </summary>
 public class PersonalElementsCollection
 {
     public SoldierType soldiertype;

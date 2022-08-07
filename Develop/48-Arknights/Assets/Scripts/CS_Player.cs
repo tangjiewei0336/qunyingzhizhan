@@ -5,10 +5,7 @@ using UnityEngine;
 public class CS_Player : MonoBehaviour {
 
 
-
-
-
-    public enum State {
+        public enum State {
         Idle = 0,
         Attack = 1,
         Standby = 7,
@@ -17,21 +14,25 @@ public class CS_Player : MonoBehaviour {
     }
 
     private State myState = State.Arrange;
-    [SerializeField] Transform myRangeParent = null;
-    [SerializeField] Transform myRotateTransform = null;
     private CS_Enemy myTargetEnemy;
 
-
+    [Header("攻击范围父节点")]
+    [SerializeField] Transform myRangeParent = null;
+    [Header("模型根节点")]
+    [SerializeField] Transform myRotateTransform = null;
+    [Header("动画数据")]
     [SerializeField] protected Animator myAnimator = null;
-
+    [Header("血量条")]
     [SerializeField] Transform myTransform_HPBar = null;
-
+    [Header("攻击特效")]
     [SerializeField] protected GameObject myEffectPrefab = null;
-    protected CS_Effect myEffect = null;
-
+    [Header("攻击音效")]
     [SerializeField] protected AudioSource myAudioSource_Attack;
 
-    [Header ("Status")]
+    protected CS_Effect myEffect = null;
+
+
+    [Header ("人物属性")]
     public  BoardProperty boardProperty = new BoardProperty();
     [SerializeField] CS_Tile.Type myTileType = CS_Tile.Type.Ground;
     [SerializeField] protected float myStatus_AttackTime = 0.5f;
