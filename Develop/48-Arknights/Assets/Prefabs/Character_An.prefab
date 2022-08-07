@@ -1593,10 +1593,20 @@ MonoBehaviour:
   myEffectPrefab: {fileID: 3980952151173818117, guid: a154362cc7a326047acaba2f1e60ebf8,
     type: 3}
   myAudioSource_Attack: {fileID: 2057483624484478368}
+  boardProperty:
+    initial_myStatus_Attack: 351
+    initial_myStatus_Health: 905
+    initial_myStatus_Defense: 256
+    initial_myStatus_SpellResistance: 10
+    initial_myStatus_Blocking: 1
+    initial_myStatus_damageType: 0
+    myStatus_Attack: 0
+    myStatus_Health: 0
+    myStatus_Defense: 0
+    myStatus_SpellResistance: 0
+    myStatus_Blocking: 0
+    myStatus_damageType: 0
   myTileType: 1
-  myStatus_MaxHealth: 1135
-  myCurrentHealth: 0
-  myStatus_Attack: 362
   myStatus_AttackTime: 2
   DeployCost: 15
   CodeName: "\u5B89\u585E\u5C14"

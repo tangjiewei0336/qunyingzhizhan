@@ -21,6 +21,7 @@ public class CS_Player : MonoBehaviour {
     [SerializeField] Transform myRotateTransform = null;
     private CS_Enemy myTargetEnemy;
 
+
     [SerializeField] protected Animator myAnimator = null;
 
     [SerializeField] Transform myTransform_HPBar = null;
@@ -31,10 +32,8 @@ public class CS_Player : MonoBehaviour {
     [SerializeField] protected AudioSource myAudioSource_Attack;
 
     [Header ("Status")]
+    public  BoardProperty boardProperty = new BoardProperty();
     [SerializeField] CS_Tile.Type myTileType = CS_Tile.Type.Ground;
-    public int myStatus_MaxHealth = 2400;
-    public int myCurrentHealth;
-    public int myStatus_Attack = 700;
     [SerializeField] protected float myStatus_AttackTime = 0.5f;
     protected float myAttackTimer = 0;
     [SerializeField] int DeployCost = 24;
@@ -63,7 +62,7 @@ public class CS_Player : MonoBehaviour {
         // face camera
         FaceCamera ();
         // init health
-        myCurrentHealth = myStatus_MaxHealth;
+        boardProperty.InitializeData();
         myTransform_HPBar.localScale = Vector3.one;
         // init effect
         if (myEffect == null) {
@@ -148,7 +147,7 @@ public class CS_Player : MonoBehaviour {
         myEffect.gameObject.SetActive (true);
 
         // attack enemy
-        myTargetEnemy.TakeDamage (myStatus_Attack);
+        myTargetEnemy.TakeDamage (boardProperty.myStatus_Attack);
         myAttackTimer += myStatus_AttackTime;
         myAnimator.SetTrigger ("Attack");
     }
@@ -168,10 +167,10 @@ public class CS_Player : MonoBehaviour {
     }
 
     public void TakeDamage (int g_damage) {
-        myCurrentHealth -= g_damage;
+        boardProperty.myStatus_Health -= g_damage;
 
-        if (myCurrentHealth <= 0) {
-            myCurrentHealth = 0;
+        if (boardProperty.myStatus_Health <= 0) {
+            boardProperty.myStatus_Health = 0;
             // set dead
             Debug.Log("CS_Player : Death HP Threshold reached.");
             myState = State.Dead;
@@ -180,8 +179,8 @@ public class CS_Player : MonoBehaviour {
             this.gameObject.SetActive (false);
         }
 
-        if (myCurrentHealth > myStatus_MaxHealth) {
-            myCurrentHealth = myStatus_MaxHealth;
+        if (boardProperty.myStatus_Health > boardProperty.initial_myStatus_Health) {
+            boardProperty.myStatus_Health = boardProperty.initial_myStatus_Health;
         }
 
         // update HP bar ui
@@ -189,7 +188,7 @@ public class CS_Player : MonoBehaviour {
     }
 
     public float GetHealthPercent () {
-        return (float)myCurrentHealth / myStatus_MaxHealth;
+        return (float)boardProperty.myStatus_Health / boardProperty.initial_myStatus_Health;
     }
 
     public CS_Tile.Type GetTileType () {
@@ -199,4 +198,40 @@ public class CS_Player : MonoBehaviour {
     public State GetState () {
         return myState;
     }
+}
+
+[System.Serializable]
+public struct BoardProperty
+{
+    public int initial_myStatus_Attack;
+    public int initial_myStatus_Health;
+    public int initial_myStatus_Defense;
+    public int initial_myStatus_SpellResistance;
+    public int initial_myStatus_Blocking;
+    public DamageType initial_myStatus_damageType;
+
+
+    public int myStatus_Attack;
+    public int myStatus_Health;
+    public int myStatus_Defense;
+    public int myStatus_SpellResistance;
+    public int myStatus_Blocking;
+    public DamageType myStatus_damageType;
+
+    public void InitializeData()
+    {
+        myStatus_Attack = initial_myStatus_Attack;
+        myStatus_Health = initial_myStatus_Health;
+        myStatus_Defense = initial_myStatus_Defense;
+        myStatus_SpellResistance = initial_myStatus_SpellResistance;
+        myStatus_damageType = initial_myStatus_damageType;
+        myStatus_Blocking = initial_myStatus_Blocking;
+    }
+
+}
+public enum DamageType
+{
+    Physical = 1,
+    Spell = 2,
+    Real = 3
 }

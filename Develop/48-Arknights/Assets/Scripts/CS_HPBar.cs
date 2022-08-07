@@ -27,6 +27,9 @@ public class CS_HPBar : MonoBehaviour
         Digits = HPBar.GetComponent<TextMeshProUGUI>();
         CodeName = NameBar.GetComponent<TextMeshProUGUI>();
         ATK = ATKBar.GetComponent<TextMeshProUGUI>();
+        DEF = DEFBar.GetComponent<TextMeshProUGUI>();
+        SPD = SPDBar.GetComponent<TextMeshProUGUI>();
+        BLK = BLKBar.GetComponent<TextMeshProUGUI>();
     }
 
     private void OnEnable()
@@ -41,9 +44,12 @@ public class CS_HPBar : MonoBehaviour
             CurrentPlayer = control.myCurrentStagePlayer;
             ChangePerson = false;
         }
-        gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(520 * CurrentPlayer.myCurrentHealth / CurrentPlayer.myStatus_MaxHealth, 10);
-        Digits.text = CurrentPlayer.myCurrentHealth.ToString() + "/" + CurrentPlayer.myStatus_MaxHealth.ToString();
+        gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(520 * CurrentPlayer.GetHealthPercent(), 10);
+        Digits.text = CurrentPlayer.boardProperty.myStatus_Health.ToString() + "/" + CurrentPlayer.boardProperty.initial_myStatus_Health.ToString();
         CodeName.text = CurrentPlayer.CodeName;
-        ATK.text = CurrentPlayer.myStatus_Attack.ToString();
+        ATK.text = CurrentPlayer.boardProperty.myStatus_Attack.ToString();
+        DEF.text = CurrentPlayer.boardProperty.myStatus_Defense.ToString();
+        SPD.text = CurrentPlayer.boardProperty.myStatus_SpellResistance.ToString();
+        BLK.text = CurrentPlayer.boardProperty.myStatus_Blocking.ToString();
     }
 }

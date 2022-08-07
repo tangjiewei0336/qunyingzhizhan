@@ -514,8 +514,19 @@ MonoBehaviour:
   myTransform_HPBar: {fileID: 7811068605215308819}
   myObject_HPCanvas: {fileID: 7544091495354503326}
   myAudioSource_Attack: {fileID: 3150313180154004729}
-  myStatus_MaxHealth: 3000
-  myStatus_Attack: 370
+  boardProperty:
+    initial_myStatus_Attack: 300
+    initial_myStatus_Health: 2000
+    initial_myStatus_Defense: 500
+    initial_myStatus_SpellResistance: 30
+    initial_myStatus_Blocking: 0
+    initial_myStatus_damageType: 1
+    myStatus_Attack: 0
+    myStatus_Health: 0
+    myStatus_Defense: 0
+    myStatus_SpellResistance: 0
+    myStatus_Blocking: 0
+    myStatus_damageType: 0
   myStatus_AttackTime: 1.4
 --- !u!82 &3150313180154004729
 AudioSource:

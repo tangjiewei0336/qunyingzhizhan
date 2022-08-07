@@ -9,6 +9,7 @@ public class CS_Enemy : MonoBehaviour {
         Dead = 9,
     }
 
+
     [SerializeField] SpriteRenderer mySpriteRenderer;
     private State myState;
     private List<Vector3> myPath;
@@ -23,9 +24,7 @@ public class CS_Enemy : MonoBehaviour {
     [SerializeField] AudioSource myAudioSource_Attack;
 
     [Header ("Status")]
-    [SerializeField] int myStatus_MaxHealth = 1000;
-    private int myCurrentHealth;
-    [SerializeField] int myStatus_Attack = 200;
+    public BoardProperty boardProperty = new BoardProperty();
     [SerializeField] float myStatus_AttackTime = 0.5f;
     private float myAttackTimer = 0;
 
@@ -41,7 +40,7 @@ public class CS_Enemy : MonoBehaviour {
         myAnimator.SetInteger ("State", 0);
 
         // init health
-        myCurrentHealth = myStatus_MaxHealth;
+        boardProperty.InitializeData();
         myTransform_HPBar.localScale = Vector3.one;
         myObject_HPCanvas.SetActive (false);
 
@@ -99,7 +98,7 @@ public class CS_Enemy : MonoBehaviour {
         myAudioSource_Attack.Play ();
 
         // attack enemy
-        myTargetPlayer.TakeDamage (myStatus_Attack);
+        myTargetPlayer.TakeDamage (boardProperty.myStatus_Attack);
         myAttackTimer += myStatus_AttackTime;
         myAnimator.SetTrigger ("Attack");
         myState = State.Attack;
@@ -152,21 +151,22 @@ public class CS_Enemy : MonoBehaviour {
     }
 
     public void TakeDamage (int g_damage) {
-        myCurrentHealth -= g_damage;
+        boardProperty.myStatus_Health -= g_damage;
 
-        if (myCurrentHealth <= 0) {
-            myCurrentHealth = 0;
+        if (boardProperty.myStatus_Health <= 0)
+        {
+            boardProperty.myStatus_Health = 0;
             // set dead
-            myState = State.Dead;
-            // hide enemy
+            myState = State.Dead; 
             this.gameObject.SetActive (false);
             // tell manager lose enemy
             CS_EnemyManager.Instance.LoseEnemy (this);
         }
 
-        // active the canvas
-        myObject_HPCanvas.SetActive (true);
-        // update HP bar ui
-        myTransform_HPBar.localScale = new Vector3 ((float)myCurrentHealth / myStatus_MaxHealth, 1, 1);
+        myObject_HPCanvas.SetActive(true);
+        myTransform_HPBar.localScale = new Vector3((float)boardProperty.myStatus_Health / boardProperty.initial_myStatus_Health, 1, 1);
+
+
+
     }
 }
