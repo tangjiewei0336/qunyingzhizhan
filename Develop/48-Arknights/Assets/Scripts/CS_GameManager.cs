@@ -223,6 +223,8 @@ public class CS_GameManager : MonoBehaviour
                     myDirectionObject.transform.position = myCurrentPlayer.transform.position;
                     myDirectionObject.SetActive(true);
                     t_tile.Occupy(myCurrentPlayer);
+                    BoxCollider t_box = myCurrentPlayer.transform.Find("RayCollider").GetComponent<BoxCollider>();
+                    t_box.enabled = true;
                     return;
                 }
             }
@@ -232,8 +234,6 @@ public class CS_GameManager : MonoBehaviour
         myCurrentPlayer.gameObject.SetActive(false);
         myCurrentPlayer = null;
         SetSpeed(SpeedScale.Normal, SpeedLockBehavior.Unlock, 0);
-        BoxCollider t_box = myCurrentPlayer.transform.Find("RayCollider").GetComponent<BoxCollider>();
-        t_box.enabled = true;
         DoRayCast = true;
     }
     #endregion
