@@ -166,25 +166,60 @@ public class CS_Player : MonoBehaviour {
         return false;
     }
 
-    public void TakeDamage (int g_damage) {
-        boardProperty.myStatus_Health -= g_damage;
+    public void TakeHeal(long g_damage)
+    {
+        boardProperty.myStatus_Health += g_damage;
+        RefreshHPBar();
+    }
 
-        if (boardProperty.myStatus_Health <= 0) {
+    public void TakeDamage (long g_damage) {
+        long ActualDamageValue;
+        if (boardProperty.myStatus_damageType == DamageType.Physical) {
+            if (g_damage - boardProperty.myStatus_Defense > 10)
+            {
+                ActualDamageValue = g_damage - boardProperty.myStatus_Defense;
+            } else if (g_damage - boardProperty.myStatus_Defense > 0)
+            {
+                ActualDamageValue = (long)((g_damage - boardProperty.myStatus_Defense) * 0.9f + 1f);
+            }
+            else
+            {
+                ActualDamageValue = 1;
+            }
+        } else if (boardProperty.myStatus_damageType == DamageType.Spell)
+        {
+            ActualDamageValue = (long)(g_damage * (100 - boardProperty.myStatus_SpellResistance) / 100f);
+        }
+        else
+        {
+            ActualDamageValue = g_damage;
+        }
+
+        boardProperty.myStatus_Health -= ActualDamageValue;
+
+        RefreshHPBar();
+    }
+
+    public void RefreshHPBar()
+    {
+        if (boardProperty.myStatus_Health <= 0)
+        {
             boardProperty.myStatus_Health = 0;
             // set dead
             Debug.Log("CS_Player : Death HP Threshold reached.");
             myState = State.Dead;
             CS_GameManager.Instance.SetDeadTimer(CodeName, PresettedReDeployTime);
             // hide enemy
-            this.gameObject.SetActive (false);
+            this.gameObject.SetActive(false);
         }
 
-        if (boardProperty.myStatus_Health > boardProperty.initial_myStatus_Health) {
+        if (boardProperty.myStatus_Health > boardProperty.initial_myStatus_Health)
+        {
             boardProperty.myStatus_Health = boardProperty.initial_myStatus_Health;
         }
 
         // update HP bar ui
-        myTransform_HPBar.localScale = new Vector3 (GetHealthPercent (), 1, 1);
+        myTransform_HPBar.localScale = new Vector3(GetHealthPercent(), 1, 1);
     }
 
     public float GetHealthPercent () {
@@ -203,19 +238,19 @@ public class CS_Player : MonoBehaviour {
 [System.Serializable]
 public struct BoardProperty
 {
-    public int initial_myStatus_Attack;
-    public int initial_myStatus_Health;
-    public int initial_myStatus_Defense;
-    public int initial_myStatus_SpellResistance;
-    public int initial_myStatus_Blocking;
+    public long initial_myStatus_Attack;
+    public long initial_myStatus_Health;
+    public long initial_myStatus_Defense;
+    public long initial_myStatus_SpellResistance;
+    public long initial_myStatus_Blocking;
     public DamageType initial_myStatus_damageType;
 
 
-    public int myStatus_Attack;
-    public int myStatus_Health;
-    public int myStatus_Defense;
-    public int myStatus_SpellResistance;
-    public int myStatus_Blocking;
+    public long myStatus_Attack;
+    public long myStatus_Health;
+    public long myStatus_Defense;
+    public long myStatus_SpellResistance;
+    public long myStatus_Blocking;
     public DamageType myStatus_damageType;
 
     public void InitializeData()

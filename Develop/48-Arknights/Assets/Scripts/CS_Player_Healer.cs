@@ -70,7 +70,7 @@ public class CS_Player_Healer : CS_Player {
         myEffect.gameObject.SetActive (true);
 
         // attack enemy
-        myTargetPlayer.TakeDamage (boardProperty.myStatus_Attack * -1);
+        myTargetPlayer.TakeHeal (boardProperty.myStatus_Attack);
         myAttackTimer += myStatus_AttackTime;
         myAnimator.SetTrigger ("Attack");
     }

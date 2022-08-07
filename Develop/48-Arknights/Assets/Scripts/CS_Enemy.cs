@@ -150,8 +150,33 @@ public class CS_Enemy : MonoBehaviour {
         }
     }
 
-    public void TakeDamage (int g_damage) {
-        boardProperty.myStatus_Health -= g_damage;
+    public void TakeDamage (long g_damage) {
+        long ActualDamageValue;
+        if (boardProperty.myStatus_damageType == DamageType.Physical)
+        {
+            if (g_damage - boardProperty.myStatus_Defense > 10)
+            {
+                ActualDamageValue = g_damage - boardProperty.myStatus_Defense;
+            }
+            else if (g_damage - boardProperty.myStatus_Defense > 0)
+            {
+                ActualDamageValue = (long)((g_damage - boardProperty.myStatus_Defense) * 0.9f + 1f);
+            }
+            else
+            {
+                ActualDamageValue = 1;
+            }
+        }
+        else if (boardProperty.myStatus_damageType == DamageType.Spell)
+        {
+            ActualDamageValue = (long)(g_damage * (100 - boardProperty.myStatus_SpellResistance) / 100f);
+        }
+        else
+        {
+            ActualDamageValue = g_damage;
+        }
+
+        boardProperty.myStatus_Health -= ActualDamageValue;
 
         if (boardProperty.myStatus_Health <= 0)
         {
@@ -165,7 +190,6 @@ public class CS_Enemy : MonoBehaviour {
 
         myObject_HPCanvas.SetActive(true);
         myTransform_HPBar.localScale = new Vector3((float)boardProperty.myStatus_Health / boardProperty.initial_myStatus_Health, 1, 1);
-
 
 
     }

@@ -171,9 +171,11 @@ public class CS_GameManager : MonoBehaviour
         {
             return;
         }
-
-        BoxCollider t_box = myCurrentPlayer.transform.Find("RayCollider").GetComponent<BoxCollider>();
-        t_box.enabled = false;
+        foreach(PersonalElementsCollection a in StageElements)
+        {
+            BoxCollider t_box = a.Model.gameObject.transform.Find("RayCollider").GetComponent<BoxCollider>();
+            t_box.enabled = false;
+        }
 
         // do raycast
         RaycastHit t_hit;
@@ -195,11 +197,16 @@ public class CS_GameManager : MonoBehaviour
 
             myCurrentPlayer.transform.position = t_hit.point;
         }
-        t_box.enabled = true;
+        foreach (PersonalElementsCollection a in StageElements)
+        {
+            BoxCollider t_box = a.Model.gameObject.transform.Find("RayCollider").GetComponent<BoxCollider>();
+            t_box.enabled = true;
+        }
     }
-
+    bool ResetRayCastAfterDeploy = false;
     public void EndDragPlayer()
     {
+        
         // dont do anything if its setting direction
         if (myDirectionObject.activeSelf == true)
         {
@@ -223,8 +230,6 @@ public class CS_GameManager : MonoBehaviour
                     myDirectionObject.transform.position = myCurrentPlayer.transform.position;
                     myDirectionObject.SetActive(true);
                     t_tile.Occupy(myCurrentPlayer);
-                    BoxCollider t_box = myCurrentPlayer.transform.Find("RayCollider").GetComponent<BoxCollider>();
-                    t_box.enabled = true;
                     return;
                 }
             }
@@ -468,7 +473,7 @@ public class CS_GameManager : MonoBehaviour
     /// </summary>
     void DetectMousePointerOnUnits()
     {
-        if (DoRayCast)
+        if (DoRayCast && !ResetRayCastAfterDeploy)
         {
             RaycastHit t_hit;
             Ray t_ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -558,6 +563,16 @@ public class CS_GameManager : MonoBehaviour
         DetectMousePointerOnUnits();
         CostCheckOut();
         StepSpin();
+        if (ResetRayCastAfterDeploy)
+        {
+            ResetRayCastAfterDeploy = false;
+
+            foreach (PersonalElementsCollection a in StageElements)
+            {
+                BoxCollider t_box = a.Model.gameObject.transform.Find("RayCollider").GetComponent<BoxCollider>();
+                t_box.enabled = true;
+            }
+        }
     }
     #endregion
 
@@ -667,6 +682,8 @@ public class CS_GameManager : MonoBehaviour
                 myCurrentPlayer = null;
                 // set slow mode back
                 SetSpeed(SpeedScale.Normal, SpeedLockBehavior.Unlock, 0);
+                Debug.Log("Reset Raycase set to true.");
+                ResetRayCastAfterDeploy = true;
                 DoRayCast = true;
                 return;
             }
