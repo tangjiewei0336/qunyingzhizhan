@@ -26,6 +26,7 @@ public class CS_HPBar : MonoBehaviour
     {
         Digits = HPBar.GetComponent<TextMeshProUGUI>();
         CodeName = NameBar.GetComponent<TextMeshProUGUI>();
+        ATK = ATKBar.GetComponent<TextMeshProUGUI>();
     }
 
     private void OnEnable()
