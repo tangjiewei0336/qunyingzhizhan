@@ -172,6 +172,9 @@ public class CS_GameManager : MonoBehaviour
             return;
         }
 
+        BoxCollider t_box = myCurrentPlayer.transform.Find("RayCollider").GetComponent<BoxCollider>();
+        t_box.enabled = false;
+
         // do raycast
         RaycastHit t_hit;
         Ray t_ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -181,7 +184,7 @@ public class CS_GameManager : MonoBehaviour
             CS_Tile t_tile = t_hit.collider.gameObject.GetComponentInParent<CS_Tile>();
             if (t_tile != null)
             {
-                if (t_tile.GetType() == myCurrentPlayer.GetTileType())
+                if ((t_tile.GetType() == myCurrentPlayer.GetTileType()) && (t_tile.myPlayer == null))
                 {
                     Vector3 t_position = t_tile.transform.position;
                     t_position.y = t_hit.point.y;
@@ -192,6 +195,7 @@ public class CS_GameManager : MonoBehaviour
 
             myCurrentPlayer.transform.position = t_hit.point;
         }
+        t_box.enabled = true;
     }
 
     public void EndDragPlayer()
@@ -204,7 +208,6 @@ public class CS_GameManager : MonoBehaviour
 
         // hide highlight
         myCurrentPlayer.HideHighlight();
-
         // do raycast
         RaycastHit t_hit;
         Ray t_ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -214,11 +217,12 @@ public class CS_GameManager : MonoBehaviour
             CS_Tile t_tile = t_hit.collider.gameObject.GetComponentInParent<CS_Tile>();
             if (t_tile != null)
             {
-                if (t_tile.GetType() == myCurrentPlayer.GetTileType())
+                if ((t_tile.GetType() == myCurrentPlayer.GetTileType()) && (t_tile.myPlayer == null))
                 {
                     // show direction object
                     myDirectionObject.transform.position = myCurrentPlayer.transform.position;
                     myDirectionObject.SetActive(true);
+                    t_tile.Occupy(myCurrentPlayer);
                     return;
                 }
             }
@@ -228,6 +232,8 @@ public class CS_GameManager : MonoBehaviour
         myCurrentPlayer.gameObject.SetActive(false);
         myCurrentPlayer = null;
         SetSpeed(SpeedScale.Normal, SpeedLockBehavior.Unlock, 0);
+        BoxCollider t_box = myCurrentPlayer.transform.Find("RayCollider").GetComponent<BoxCollider>();
+        t_box.enabled = true;
         DoRayCast = true;
     }
     #endregion
