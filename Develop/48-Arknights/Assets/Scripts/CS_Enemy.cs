@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CS_Enemy : MonoBehaviour {
+public class CS_Enemy : MonoBehaviour
+{
     enum State {
         Move = 0,
         Attack = 1,
@@ -27,6 +28,7 @@ public class CS_Enemy : MonoBehaviour {
     public BoardProperty boardProperty = new BoardProperty();
     [SerializeField] float myStatus_AttackTime = 0.5f;
     private float myAttackTimer = 0;
+
 
 
     public void Init () {
@@ -150,6 +152,7 @@ public class CS_Enemy : MonoBehaviour {
         }
     }
 
+
     public void TakeDamage (long g_damage) {
         long ActualDamageValue;
         if (boardProperty.myStatus_damageType == DamageType.Physical)
@@ -177,6 +180,11 @@ public class CS_Enemy : MonoBehaviour {
         }
 
         boardProperty.myStatus_Health -= ActualDamageValue;
+
+        if(ActualDamageValue > 100)
+        {
+            CS_UIManager.Instance.DisplayDigits(ActualDamageValue, gameObject.transform.position,gameObject);
+        }
 
         if (boardProperty.myStatus_Health <= 0)
         {

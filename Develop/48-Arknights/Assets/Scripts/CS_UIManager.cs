@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 public class CS_UIManager : MonoBehaviour {
 
     private static CS_UIManager instance = null;
+
+    public GameObject DigitPrefab;
     public static CS_UIManager Instance { get { return instance; } }
     // Start is called before the first frame update
 
@@ -21,25 +23,26 @@ public class CS_UIManager : MonoBehaviour {
 
     [SerializeField] Button[] BackupPlayer;
 
-    private void Awake () {
+
+    private void Awake() {
         if (instance != null && instance != this) {
-            Destroy (this.gameObject);
+            Destroy(this.gameObject);
         } else {
             instance = this;
         }
     }
 
-    private void Start () {
-        myPage_End.SetActive (false);
-        myPage_Fail.SetActive (false);
+    private void Start() {
+        myPage_End.SetActive(false);
+        myPage_Fail.SetActive(false);
     }
 
-    public void SetLife (int g_life) {
-        myText_Life.text = g_life.ToString ();
+    public void SetLife(int g_life) {
+        myText_Life.text = g_life.ToString();
     }
 
-    public void SetCount (int g_current, int g_total) {
-        myText_Count.text = g_current.ToString("0") + "/" + g_total.ToString ("0");
+    public void SetCount(int g_current, int g_total) {
+        myText_Count.text = g_current.ToString("0") + "/" + g_total.ToString("0");
     }
 
     /// <summary>
@@ -49,7 +52,7 @@ public class CS_UIManager : MonoBehaviour {
     public void SetProgressbarValue(float Percentage)
     {
         myImage_CostProgressBar.rectTransform.sizeDelta = new Vector2(500f * Percentage, 18);
-        myImage_CostProgressBar.rectTransform.anchoredPosition = new Vector3( - 500f + 250f * Percentage, 307, 0);
+        myImage_CostProgressBar.rectTransform.anchoredPosition = new Vector3(-500f + 250f * Percentage, 307, 0);
     }
 
     public void SetCost(int cost)
@@ -61,18 +64,18 @@ public class CS_UIManager : MonoBehaviour {
     //    CS_GameManager.Instance.SetMyCurrentPlayer (g_index);
     //}
 
-    public void OnButtonTitle () {
+    public void OnButtonTitle() {
         Time.timeScale = 1;
-        SceneManager.LoadScene ("Title");
+        SceneManager.LoadScene("Title");
     }
 
-    public void OnButtonRestart () {
+    public void OnButtonRestart() {
         Time.timeScale = 1;
-        SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void ShowPageEnd () {
-        myPage_End.SetActive (true);
+    public void ShowPageEnd() {
+        myPage_End.SetActive(true);
         Invoke("Summarize", 1.67f);
     }
 
@@ -82,7 +85,19 @@ public class CS_UIManager : MonoBehaviour {
 
     }
 
-    public void ShowPageFail () {
-        myPage_Fail.SetActive (true);
+    public void ShowPageFail() {
+        myPage_Fail.SetActive(true);
     }
+
+    GameObject TempObject;
+    public void DisplayDigits(long value, Vector3 position,GameObject Target)
+    {
+        TempObject = Instantiate(DigitPrefab);
+        TempObject.transform.SetParent(GameObject.Find("NumericDisplay").transform);
+        CS_DamageDisplayDigit TempScript = TempObject.GetComponent<CS_DamageDisplayDigit>();
+        TempObject.GetComponent<RectTransform>().position = position;
+        TempScript.SetDamageValue(value,Target,new Vector3(Random.Range(-0.5f, 0.5f) , Random.Range(-0.5f, 0.5f), Random.Range(-0.1f, 0.1f)));
+        TempObject.SetActive(true);
+    }
+
 }

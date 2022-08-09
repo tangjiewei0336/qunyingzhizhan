@@ -321,7 +321,7 @@ MonoBehaviour:
   boardProperty:
     initial_myStatus_Attack: 800
     initial_myStatus_Health: 2800
-    initial_myStatus_Defense: 700
+    initial_myStatus_Defense: 396
     initial_myStatus_SpellResistance: 20
     initial_myStatus_Blocking: 2
     initial_myStatus_damageType: 1
