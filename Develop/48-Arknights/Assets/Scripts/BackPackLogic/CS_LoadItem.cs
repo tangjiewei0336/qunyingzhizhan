@@ -207,17 +207,17 @@ public class CS_LoadItem : MonoBehaviour
     /// <summary>
     /// 可以重新写入文件到一个已存在的txt文本中去
     /// </summary>
-    void ReWriteMyTxtByFileStreamTxt()
-    {
-        string path = AssetDatabase.GetAssetPath(InventoryDetail) + "/背包道具.txt";
-        string[] strs = new string[StockOverview.Count * 2 - 1];
-        for (int i = 0; i < StockOverview.Count; i++)
-        {
-            strs[2 * i] = StockOverview[i].ItemSerial.ToString();
-            strs[2 * i + 1] = StockOverview[i].Stock.ToString();
-        }
-        File.WriteAllLines(path, strs);
-    }
+    //void ReWriteMyTxtByFileStreamTxt()
+    //{
+    //    string path = AssetDatabase.GetAssetPath(InventoryDetail) + "/背包道具.txt";
+    //    string[] strs = new string[StockOverview.Count * 2 - 1];
+    //    for (int i = 0; i < StockOverview.Count; i++)
+    //    {
+    //        strs[2 * i] = StockOverview[i].ItemSerial.ToString();
+    //        strs[2 * i + 1] = StockOverview[i].Stock.ToString();
+    //    }
+    //    File.WriteAllLines(path, strs);
+    //}
 
     public void ButtonClicked(GameObject ClickedObject)
     {

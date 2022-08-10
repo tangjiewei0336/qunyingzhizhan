@@ -26,4 +26,8 @@ public class CS_Tile : MonoBehaviour {
     public void Occupy (CS_Player g_player) {
         myPlayer = g_player;
     }
+    public void Vacant()
+    {
+        myPlayer = null ;
+    }
 }

@@ -20,6 +20,8 @@ public class CS_Player : MonoBehaviour {
     [SerializeField] Transform myRangeParent = null;
     [Header("模型根节点")]
     [SerializeField] Transform myRotateTransform = null;
+    [Header("本地翻转节点")]
+    public  Transform mySprites = null;
     [Header("动画数据")]
     [SerializeField] protected Animator myAnimator = null;
     [Header("血量条")]
@@ -30,7 +32,7 @@ public class CS_Player : MonoBehaviour {
     [SerializeField] protected AudioSource myAudioSource_Attack;
 
     protected CS_Effect myEffect = null;
-
+    public CS_Tile myTile;
 
     [Header ("人物属性")]
     public  BoardProperty boardProperty = new BoardProperty();
@@ -137,6 +139,18 @@ public class CS_Player : MonoBehaviour {
             myTargetEnemy = null;
             Debug.Log ("out of range");
             return;
+        }
+
+        foreach(Transform SPR in mySprites)
+        {
+            if(myTargetEnemy.transform.position.x > this.gameObject.transform.position.x)
+            {
+                SPR.localScale = new Vector3(1, 1, 1);
+            }
+            else
+            {
+                SPR.localScale = new Vector3(-1, 1, 1);
+            }
         }
 
         // play sfx

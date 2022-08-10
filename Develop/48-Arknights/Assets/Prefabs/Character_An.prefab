@@ -1588,6 +1588,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myRangeParent: {fileID: 8096475979719867687}
   myRotateTransform: {fileID: 6137973041954491918}
+  mySprites: {fileID: 8573293117630178199}
   myAnimator: {fileID: 6965436741238390262}
   myTransform_HPBar: {fileID: 3077228325897466075}
   myEffectPrefab: {fileID: 3980952151173818117, guid: a154362cc7a326047acaba2f1e60ebf8,

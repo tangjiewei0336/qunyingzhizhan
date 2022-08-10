@@ -60,6 +60,18 @@ public class CS_Player_Healer : CS_Player {
             myTargetPlayer = null;
             return;
         }
+        foreach (Transform SPR in mySprites)
+        {
+            if (myTargetPlayer.transform.position.x > this.gameObject.transform.position.x)
+            {
+                SPR.localScale = new Vector3(1, 1, 1);
+            }
+            else
+            {
+                SPR.localScale = new Vector3(-1, 1, 1);
+            }
+        }
+
 
         // play sfx
         myAudioSource_Attack.Play ();

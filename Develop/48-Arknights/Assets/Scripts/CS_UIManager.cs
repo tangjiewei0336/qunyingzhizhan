@@ -75,8 +75,9 @@ public class CS_UIManager : MonoBehaviour {
     }
 
     public void ShowPageEnd() {
+        Time.timeScale = 1f;
         myPage_End.SetActive(true);
-        Invoke("Summarize", 1.67f);
+        Invoke(nameof(Summarize), 1.67f);
     }
 
     public void Summarize()

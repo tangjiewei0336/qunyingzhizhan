@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Linq.Expressions;
 using System;
 
 public class CS_GameManager : MonoBehaviour
@@ -171,7 +169,7 @@ public class CS_GameManager : MonoBehaviour
         {
             return;
         }
-        foreach(PersonalElementsCollection a in StageElements)
+        foreach (PersonalElementsCollection a in StageElements)
         {
             BoxCollider t_box = a.Model.gameObject.transform.Find("RayCollider").GetComponent<BoxCollider>();
             t_box.enabled = false;
@@ -206,7 +204,7 @@ public class CS_GameManager : MonoBehaviour
     bool ResetRayCastAfterDeploy = false;
     public void EndDragPlayer()
     {
-        
+
         // dont do anything if its setting direction
         if (myDirectionObject.activeSelf == true)
         {
@@ -230,6 +228,7 @@ public class CS_GameManager : MonoBehaviour
                     myDirectionObject.transform.position = myCurrentPlayer.transform.position;
                     myDirectionObject.SetActive(true);
                     t_tile.Occupy(myCurrentPlayer);
+                    myCurrentPlayer.myTile = t_tile;
                     return;
                 }
             }
@@ -594,6 +593,7 @@ public class CS_GameManager : MonoBehaviour
     {
         if (friendselecting)
         {
+            myCurrentStagePlayer.myTile.Vacant();
             myCurrentStagePlayer.gameObject.SetActive(false);
             SetDeadTimer(myCurrentStagePlayer.CodeName, 2f);
             friendselecting = false;
@@ -642,6 +642,15 @@ public class CS_GameManager : MonoBehaviour
                 if (Mathf.Abs(t_forward.x) > Mathf.Abs(t_forward.z))
                 {
                     t_forward.z = 0;
+
+                    if (t_forward.x > 0f)
+                    {
+                        myCurrentPlayer.mySprites.localScale = new Vector3(1, 1, 1);
+                    }
+                    else
+                    {
+                        myCurrentPlayer.mySprites.localScale = new Vector3(-1, 1, 1);
+                    }
                 }
                 else
                 {
@@ -702,7 +711,6 @@ public class CS_GameManager : MonoBehaviour
 
     #endregion
 
-
     public List<CS_Player> GetPlayerList()
     {
         return myPlayerList;
@@ -735,7 +743,7 @@ public class PersonalElementsCollection
         get
         {
             return button;
-            
+
         }
         set
         {
