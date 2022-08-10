@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class CS_Enemy : MonoBehaviour
 {
-    enum State {
+    enum State
+    {
         Move = 0,
         Attack = 1,
         Dead = 9,
@@ -20,102 +21,158 @@ public class CS_Enemy : MonoBehaviour
     [SerializeField] Transform myTransform_HPBar = null;
     [SerializeField] GameObject myObject_HPCanvas = null;
 
+    private CS_Player myBlockingTargetPlayer;
     private CS_Player myTargetPlayer;
+    private CS_Player myLastBlockingTarget;
 
     [SerializeField] AudioSource myAudioSource_Attack;
 
-    [Header ("Status")]
+    [Header("Status")]
     public BoardProperty boardProperty = new BoardProperty();
     [SerializeField] float myStatus_AttackTime = 0.5f;
     private float myAttackTimer = 0;
 
 
-
-    public void Init () {
+    public void Init()
+    {
         // get path
-        myPath = CS_EnemyManager.Instance.GetPath ();
+        myPath = CS_EnemyManager.Instance.GetPath();
         // move to the start point
         this.transform.position = myPath[0];
-        myPath.RemoveAt (0);
+        myPath.RemoveAt(0);
         // set state to move
         myState = State.Move;
-        myAnimator.SetInteger ("State", 0);
+        myAnimator.SetInteger("State", 0);
 
         // init health
         boardProperty.InitializeData();
         myTransform_HPBar.localScale = Vector3.one;
-        myObject_HPCanvas.SetActive (false);
+        myObject_HPCanvas.SetActive(false);
 
         // active the enemy
-        this.gameObject.SetActive (true);
+        this.gameObject.SetActive(true);
     }
 
-    private void FixedUpdate () {
-        if (myState == State.Move) {
-            Update_Move ();
+    private void FixedUpdate()
+    {
+        if (myState == State.Move)
+        {
+            Update_Move();
         }
 
-        Update_Attack ();
+        Update_Attack();
     }
 
-    private void Update_Attack () {
+    private void Update_Attack()
+    {
+
+        myBlockingTargetPlayer = null;
 
         // update attack timer
-        if (myAttackTimer > 0) {
+        if (myAttackTimer > 0)
+        {
             myAttackTimer -= Time.fixedDeltaTime;
             return;
         }
 
         // if enemy is gone, remove target
-        if (myTargetPlayer != null && myTargetPlayer.gameObject.activeSelf == false) {
+        if (myTargetPlayer != null && myTargetPlayer.gameObject.activeSelf == false)
+        {
             myTargetPlayer = null;
         }
 
         // if i dont have a target, go through enemy list to find a target
-        if (myTargetPlayer == null) {
-            List<CS_Player> t_playerList = CS_GameManager.Instance.GetPlayerList ();
-            foreach (CS_Player f_player in t_playerList) {
+        if (myTargetPlayer == null)
+        {
+            List<CS_Player> t_playerList = CS_GameManager.Instance.GetPlayerList();
+            foreach (CS_Player f_player in t_playerList)
+            {
                 if (f_player == null || f_player.gameObject.activeSelf == false ||
-                    f_player.GetState () == CS_Player.State.Dead ||
-                    f_player.GetState () == CS_Player.State.Arrange) {
+                    f_player.GetState() == CS_Player.State.Dead ||
+                    f_player.GetState() == CS_Player.State.Arrange)
+                {
                     continue;
                 }
-                if (Vector3.Distance(f_player.transform.position, this.transform.position) < 0.5f) {
+                if (Vector3.Distance(f_player.transform.position, this.transform.position) < 0.5f)
+                {
                     myTargetPlayer = f_player;
                     break;
                 }
             }
         }
 
-        // if no enemy in range, dont attack
-        if (myTargetPlayer == null) {
-            if (myState != State.Dead) {
-                myState = State.Move;
-                myAnimator.SetInteger ("State", 0);
+        //阻挡逻辑
+        if (myLastBlockingTarget == null)
+        {
+            List<CS_Player> t_playerList = CS_GameManager.Instance.GetPlayerList();
+            foreach (CS_Player f_player in t_playerList)
+            {
+                if (f_player == null || f_player.gameObject.activeSelf == false ||
+                    f_player.GetState() == CS_Player.State.Dead ||
+                    f_player.GetState() == CS_Player.State.Arrange)
+                {
+                    continue;
+                }
+                if ((Vector3.Distance(f_player.transform.position, this.transform.position) < 0.5f) && (f_player.boardProperty.myStatus_Blocking < f_player.boardProperty.initial_myStatus_Blocking))
+                {
+                    myBlockingTargetPlayer = f_player;
+                    break;
+                }
             }
+        }
+
+        // if no enemy blocking self, dont attack
+        if (myBlockingTargetPlayer == null)
+        {
+            if (myLastBlockingTarget != myBlockingTargetPlayer && myLastBlockingTarget != null && myLastBlockingTarget.myTileType == CS_Tile.Type.Ground)
+            {
+                myLastBlockingTarget.boardProperty.myStatus_Blocking -= 1;
+                if (myState != State.Dead)
+                {
+                    myState = State.Move;
+                    myAnimator.SetInteger("State", 0);
+                }
+            }
+
+            myLastBlockingTarget = myBlockingTargetPlayer;
             return;
         }
 
+        if (myLastBlockingTarget != myBlockingTargetPlayer)
+        {
+            if (myBlockingTargetPlayer != null)
+            {
+                Debug.Log("Refreshed Blocking Player.");
+                myBlockingTargetPlayer.boardProperty.myStatus_Blocking += 1;
+            }
+        }
+
+        myLastBlockingTarget = myBlockingTargetPlayer;
+
+        if (myTargetPlayer == null)
+        { return; }
         // play sfx
-        myAudioSource_Attack.Play ();
+        myAudioSource_Attack.Play();
 
         // attack enemy
-        myTargetPlayer.TakeDamage (boardProperty.myStatus_Attack);
+        myTargetPlayer.TakeDamage(boardProperty.myStatus_Attack);
         myAttackTimer += myStatus_AttackTime;
-        myAnimator.SetTrigger ("Attack");
+        myAnimator.SetTrigger("Attack");
         myState = State.Attack;
-        myAnimator.SetInteger ("State", 1);
+        myAnimator.SetInteger("State", 1);
     }
 
-    public void Update_Move () {
+    public void Update_Move()
+    {
         // make sure there is at least one target point
-        if (myPath == null || myPath.Count <= 0) {
+        if (myPath == null || myPath.Count <= 0)
+        {
             // hide enemy
-            this.gameObject.SetActive (false);
+            this.gameObject.SetActive(false);
             // tell manager lose enemy
-            CS_EnemyManager.Instance.LoseEnemy (this);
+            CS_EnemyManager.Instance.LoseEnemy(this);
             // lose life
-            CS_GameManager.Instance.LoseLife ();
+            CS_GameManager.Instance.LoseLife();
             return;
         }
 
@@ -131,11 +188,12 @@ public class CS_Enemy : MonoBehaviour
 
         // check if move over the target point
         Vector3 t_nextDirection = (t_targetPosition - t_nextPosition).normalized;
-        if (t_nextDirection != t_direction) {
+        if (t_nextDirection != t_direction)
+        {
             // arrive
             t_nextPosition = t_targetPosition;
             // remove the point from list
-            myPath.RemoveAt (0);
+            myPath.RemoveAt(0);
         }
 
         // set position
@@ -143,17 +201,22 @@ public class CS_Enemy : MonoBehaviour
 
         // update animation
         // only flip if moving horizontally
-        if (Mathf.Abs (t_direction.x) > Mathf.Abs (t_direction.y)) {
-            if (t_direction.x > 0) {
+        if (Mathf.Abs(t_direction.x) > Mathf.Abs(t_direction.y))
+        {
+            if (t_direction.x > 0)
+            {
                 mySpriteRenderer.flipX = false;
-            } else {
+            }
+            else
+            {
                 mySpriteRenderer.flipX = true;
             }
         }
     }
 
 
-    public void TakeDamage (long g_damage) {
+    public void TakeDamage(long g_damage)
+    {
         long ActualDamageValue;
         if (boardProperty.myStatus_damageType == DamageType.Physical)
         {
@@ -181,19 +244,23 @@ public class CS_Enemy : MonoBehaviour
 
         boardProperty.myStatus_Health -= ActualDamageValue;
 
-        if(ActualDamageValue > 100)
+        if (ActualDamageValue > 100)
         {
-            CS_UIManager.Instance.DisplayDigits(ActualDamageValue, gameObject.transform.position,gameObject);
+            CS_UIManager.Instance.DisplayDigits(ActualDamageValue, gameObject.transform.position, gameObject);
         }
 
         if (boardProperty.myStatus_Health <= 0)
         {
             boardProperty.myStatus_Health = 0;
+            if (myLastBlockingTarget != null && myLastBlockingTarget.myTileType == CS_Tile.Type.Ground)
+            {
+                myLastBlockingTarget.boardProperty.myStatus_Blocking -= 1;
+            }
             // set dead
-            myState = State.Dead; 
-            this.gameObject.SetActive (false);
+            myState = State.Dead;
+            this.gameObject.SetActive(false);
             // tell manager lose enemy
-            CS_EnemyManager.Instance.LoseEnemy (this);
+            CS_EnemyManager.Instance.LoseEnemy(this);
         }
 
         myObject_HPCanvas.SetActive(true);

@@ -36,7 +36,7 @@ public class CS_Player : MonoBehaviour {
 
     [Header ("人物属性")]
     public  BoardProperty boardProperty = new BoardProperty();
-    [SerializeField] CS_Tile.Type myTileType = CS_Tile.Type.Ground;
+    public CS_Tile.Type myTileType = CS_Tile.Type.Ground;
     [SerializeField] protected float myStatus_AttackTime = 0.5f;
     protected float myAttackTimer = 0;
     [SerializeField] int DeployCost = 24;
@@ -275,7 +275,7 @@ public struct BoardProperty
         myStatus_Defense = initial_myStatus_Defense;
         myStatus_SpellResistance = initial_myStatus_SpellResistance;
         myStatus_damageType = initial_myStatus_damageType;
-        myStatus_Blocking = initial_myStatus_Blocking;
+        myStatus_Blocking = 0;
     }
 
 }

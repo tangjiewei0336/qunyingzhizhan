@@ -50,6 +50,6 @@ public class CS_HPBar : MonoBehaviour
         ATK.text = CurrentPlayer.boardProperty.myStatus_Attack.ToString();
         DEF.text = CurrentPlayer.boardProperty.myStatus_Defense.ToString();
         SPD.text = CurrentPlayer.boardProperty.myStatus_SpellResistance.ToString();
-        BLK.text = CurrentPlayer.boardProperty.myStatus_Blocking.ToString();
+        BLK.text = CurrentPlayer.boardProperty.myStatus_Blocking.ToString() + "/" + CurrentPlayer.boardProperty.initial_myStatus_Blocking.ToString();
     }
 }
