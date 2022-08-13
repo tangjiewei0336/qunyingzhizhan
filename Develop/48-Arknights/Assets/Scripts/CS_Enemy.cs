@@ -24,6 +24,7 @@ public class CS_Enemy : MonoBehaviour
     private CS_Player myBlockingTargetPlayer;
     private CS_Player myTargetPlayer;
     private CS_Player myLastBlockingTarget;
+    public StageEnemies MySummonInfo;
 
     [SerializeField] AudioSource myAudioSource_Attack;
 
@@ -36,7 +37,7 @@ public class CS_Enemy : MonoBehaviour
     public void Init()
     {
         // get path
-        myPath = CS_EnemyManager.Instance.GetPath();
+        myPath = CS_EnemyManager.Instance.GetPath(MySummonInfo);
         // move to the start point
         this.transform.position = myPath[0];
         myPath.RemoveAt(0);
@@ -81,6 +82,7 @@ public class CS_Enemy : MonoBehaviour
             myTargetPlayer = null;
         }
 
+
         // if i dont have a target, go through enemy list to find a target
         if (myTargetPlayer == null)
         {
@@ -101,55 +103,62 @@ public class CS_Enemy : MonoBehaviour
             }
         }
 
-        //阻挡逻辑
-        if (myLastBlockingTarget == null)
+        List<CS_Player> g_playerList = CS_GameManager.Instance.GetPlayerList();
+        foreach (CS_Player f_player in g_playerList)
         {
-            List<CS_Player> t_playerList = CS_GameManager.Instance.GetPlayerList();
-            foreach (CS_Player f_player in t_playerList)
+            if (f_player == null || f_player.gameObject.activeSelf == false ||
+                f_player.GetState() == CS_Player.State.Dead ||
+                f_player.GetState() == CS_Player.State.Arrange)
             {
-                if (f_player == null || f_player.gameObject.activeSelf == false ||
-                    f_player.GetState() == CS_Player.State.Dead ||
-                    f_player.GetState() == CS_Player.State.Arrange)
-                {
-                    continue;
-                }
-                if ((Vector3.Distance(f_player.transform.position, this.transform.position) < 0.5f) && (f_player.boardProperty.myStatus_Blocking < f_player.boardProperty.initial_myStatus_Blocking))
-                {
-                    myBlockingTargetPlayer = f_player;
-                    break;
-                }
+                continue;
+            }
+            if (Vector3.Distance(f_player.transform.position, this.transform.position) < 0.5f && ((f_player.boardProperty.myStatus_Blocking < f_player.boardProperty.initial_myStatus_Blocking)||(myLastBlockingTarget == f_player)))
+            {
+                myBlockingTargetPlayer = f_player;
+                break;
             }
         }
 
-        // if no enemy blocking self, dont attack
-        if (myBlockingTargetPlayer == null)
-        {
-            if (myLastBlockingTarget != myBlockingTargetPlayer && myLastBlockingTarget != null && myLastBlockingTarget.myTileType == CS_Tile.Type.Ground)
-            {
-                myLastBlockingTarget.boardProperty.myStatus_Blocking -= 1;
-                if (myState != State.Dead)
-                {
-                    myState = State.Move;
-                    myAnimator.SetInteger("State", 0);
-                }
-            }
-
-            myLastBlockingTarget = myBlockingTargetPlayer;
-            return;
-        }
 
         if (myLastBlockingTarget != myBlockingTargetPlayer)
         {
+
+            Debug.Log("Player Diff.");
+            Debug.Log("myBlockingTargetPlayer：" + myBlockingTargetPlayer);
+            Debug.Log("myLastBlockingTarget：" + myLastBlockingTarget);
+
             if (myBlockingTargetPlayer != null)
             {
                 Debug.Log("Refreshed Blocking Player.");
                 myBlockingTargetPlayer.boardProperty.myStatus_Blocking += 1;
+            }
+
+            // if no enemy blocking self, dont attack
+            if (myBlockingTargetPlayer == null)
+            {
+                Debug.Log("Null Player.");
+                if (myLastBlockingTarget != null && myLastBlockingTarget.myTileType == CS_Tile.Type.Ground)
+                {
+                    Debug.Log("Reduced Blocking Player.");
+                    myLastBlockingTarget.boardProperty.myStatus_Blocking -= 1;
+                }
+
+                if (myState != State.Dead)
+                {
+                    Debug.Log("Move.");
+                    myState = State.Move;
+                    myAnimator.SetInteger("State", 0);
+                }
+                myLastBlockingTarget = myBlockingTargetPlayer;
+                return;
             }
         }
 
         myLastBlockingTarget = myBlockingTargetPlayer;
 
         if (myTargetPlayer == null)
+        { return; }
+        if (myBlockingTargetPlayer == null)
         { return; }
         // play sfx
         myAudioSource_Attack.Play();
@@ -268,4 +277,5 @@ public class CS_Enemy : MonoBehaviour
 
 
     }
+
 }

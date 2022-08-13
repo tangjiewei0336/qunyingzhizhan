@@ -1445,8 +1445,9 @@ MonoBehaviour:
   myEffectPrefab: {fileID: 1213815364772222012, guid: d31f64748c4d83e469ce7c61f503b3cc,
     type: 3}
   myAudioSource_Attack: {fileID: 8624357066753757399}
+  myTile: {fileID: 0}
   boardProperty:
-    initial_myStatus_Attack: 650
+    initial_myStatus_Attack: 950
     initial_myStatus_Health: 1500
     initial_myStatus_Defense: 355
     initial_myStatus_SpellResistance: 0

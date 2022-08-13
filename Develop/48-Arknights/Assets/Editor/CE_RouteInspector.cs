@@ -5,6 +5,7 @@ using UnityEditor;
 
 //扩展InspectorEditorTest类在Inspector面板的显示内容
 [CustomEditor(typeof(CS_RouteSave))]
+[CanEditMultipleObjects]
 public class InspectorEditor : Editor
 {
     //重写OnInspectorGUI类(刷新Inspector面板)
@@ -27,7 +28,7 @@ public class InspectorEditor : Editor
             {
                 // 检索属性数组元素
                 var element = elements.GetArrayElementAtIndex(i);
-                EditorGUILayout.PropertyField(element); 
+                EditorGUILayout.PropertyField(element);
             }
             // 重置缩进
             EditorGUI.indentLevel--;

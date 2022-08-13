@@ -584,6 +584,7 @@ public class CS_GameManager : MonoBehaviour
             Debug.Log("Comparing: " + personalElement.CodeName);
             if (personalElement.CodeName == CodeName)
             {
+                personalElement.playerScript.myTile.Vacant();
                 personalElement.SetDead(RedeployTime);
             }
         }
@@ -761,7 +762,7 @@ public class PersonalElementsCollection
     private GameObject button;
     private GameObject model;
     private CS_PlayerButton buttonScript;
-    private CS_Player playerScript;
+    public CS_Player playerScript;
     private string codename;
     private bool isDead;
     private float CostMultiplier;
