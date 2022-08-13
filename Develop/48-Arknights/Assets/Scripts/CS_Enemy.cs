@@ -106,43 +106,28 @@ public class CS_Enemy : MonoBehaviour
         List<CS_Player> g_playerList = CS_GameManager.Instance.GetPlayerList();
         foreach (CS_Player f_player in g_playerList)
         {
-            if (f_player == null || f_player.gameObject.activeSelf == false ||
-                f_player.GetState() == CS_Player.State.Dead ||
+            if (f_player == null || f_player.gameObject.activeSelf == false || f_player.GetState() == CS_Player.State.Dead ||
                 f_player.GetState() == CS_Player.State.Arrange)
-            {
-                continue;
-            }
-            if (Vector3.Distance(f_player.transform.position, this.transform.position) < 0.5f && ((f_player.boardProperty.myStatus_Blocking < f_player.boardProperty.initial_myStatus_Blocking)||(myLastBlockingTarget == f_player)))
+            { continue; }
+            if (Vector3.Distance(f_player.transform.position, this.transform.position) < 0.5f &&
+                ((f_player.boardProperty.myStatus_Blocking < f_player.boardProperty.initial_myStatus_Blocking) || (myLastBlockingTarget == f_player)))
             {
                 myBlockingTargetPlayer = f_player;
                 break;
             }
         }
 
-
         if (myLastBlockingTarget != myBlockingTargetPlayer)
         {
-
-            Debug.Log("Player Diff.");
-            Debug.Log("myBlockingTargetPlayer：" + myBlockingTargetPlayer);
-            Debug.Log("myLastBlockingTarget：" + myLastBlockingTarget);
-
             if (myBlockingTargetPlayer != null)
+            { myBlockingTargetPlayer.boardProperty.myStatus_Blocking += 1; }
+            else
             {
-                Debug.Log("Refreshed Blocking Player.");
-                myBlockingTargetPlayer.boardProperty.myStatus_Blocking += 1;
-            }
-
-            // if no enemy blocking self, dont attack
-            if (myBlockingTargetPlayer == null)
-            {
-                Debug.Log("Null Player.");
                 if (myLastBlockingTarget != null && myLastBlockingTarget.myTileType == CS_Tile.Type.Ground)
                 {
                     Debug.Log("Reduced Blocking Player.");
                     myLastBlockingTarget.boardProperty.myStatus_Blocking -= 1;
                 }
-
                 if (myState != State.Dead)
                 {
                     Debug.Log("Move.");
